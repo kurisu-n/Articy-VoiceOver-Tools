@@ -27,3 +27,6 @@ Thumbs.db
 # Editor backup / swap files
 *~
 *.swp
+
+# Local convenience shortcuts (e.g. Build Output.lnk, Releases.lnk)
+*.lnk
