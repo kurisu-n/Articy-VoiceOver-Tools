@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TextPackage BaseNamespace="Kurisu.VoiceOverNamingScheme" GenerateIds="true" xmlns="http://nevigo.com/TextPackage.xsd" xml:space="preserve" >
+
+  <Category Name="System" >
+    <TextDefinition Key="Plugin.DisplayName">
+      <Context></Context>
+      <Text Lang="en">Dialogue System Voice Over Helper</Text>
+    </TextDefinition>
+
+    <TextDefinition Key="Plugin.ContextName">
+      <Context></Context>
+      <Text Lang="en">Dialogue System Voice Over Helper</Text>
+    </TextDefinition>
+    
+  </Category>
+</TextPackage>

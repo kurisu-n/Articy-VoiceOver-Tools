@@ -1,0 +1,29 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+# JetBrains Rider / ReSharper
+.idea/
+*.DotSettings.user
+
+# VS file nesting
+.filenesting.json
+
+# Upgrade / migration logs
+UpgradeLog*.htm
+_UpgradeReport_Files/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor backup / swap files
+*~
+*.swp

@@ -1,0 +1,94 @@
+<Window x:Class="Kurisu.VoiceOverNamingScheme.CleanupOrphanedAssetsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kurisu.VoiceOverNamingScheme"
+        mc:Ignorable="d"
+        Title="Clean Up Orphaned Voice-Overs"
+        Height="560" Width="820"
+        WindowStartupLocation="CenterOwner"
+        Style="{DynamicResource ArticyWindowStyle}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Kurisu.VoiceOverNamingScheme;component/Resources/ArticyTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="SummaryTextBlock"
+                   Grid.Row="0"
+                   Style="{DynamicResource HeaderTextStyle}"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,8"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,6">
+            <TextBlock Style="{DynamicResource HintTextStyle}"
+                       Text="Select a row, then jump to it in Articy:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            <Button x:Name="ShowAssetButton"
+                    Content="Show VO Asset"
+                    Width="140" Height="26"
+                    IsEnabled="False"
+                    Click="ShowAssetButton_Click"/>
+            <TextBlock Style="{DynamicResource HintTextStyle}"
+                       Text="(window stays open — navigate multiple entries, then Cancel or Execute when done)"
+                       VerticalAlignment="Center"
+                       Margin="10,0,0,0"/>
+        </StackPanel>
+
+        <Border Grid.Row="2"
+                BorderBrush="{DynamicResource BorderDarkBrush}"
+                BorderThickness="1"
+                Background="{DynamicResource DarkBgBrush}">
+            <ListBox x:Name="OrphansListBox"
+                     BorderThickness="0"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     SelectionChanged="OrphansListBox_SelectionChanged"/>
+        </Border>
+
+        <GroupBox Grid.Row="3" Header="Action" Margin="0,10,0,8" Padding="8">
+            <StackPanel>
+                <RadioButton x:Name="DryRunRadio" IsChecked="True">
+                    <TextBlock TextWrapping="Wrap">
+                        <Run FontWeight="Bold">Dry run</Run> &#8212; list only, no changes made.
+                    </TextBlock>
+                </RadioButton>
+                <RadioButton x:Name="DeleteArticyRadio">
+                    <TextBlock TextWrapping="Wrap">
+                        <Run FontWeight="Bold" Foreground="{DynamicResource OkBrush}">Delete from Articy only (recommended)</Run> &#8212; asset entries removed now. Articy keeps the disk files until the session is closed, so the action stays reversible via Undo until then.
+                    </TextBlock>
+                </RadioButton>
+                <RadioButton x:Name="DeleteBothRadio">
+                    <TextBlock TextWrapping="Wrap">
+                        <Run FontWeight="Bold" Foreground="{DynamicResource DangerBrush}">Delete from Articy AND disk immediately</Run> &#8212; permanent right now. No Undo.
+                    </TextBlock>
+                </RadioButton>
+            </StackPanel>
+        </GroupBox>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="CancelButton"
+                    Content="Cancel"
+                    Width="100" Height="30" Margin="0,0,8,0"
+                    Click="CancelButton_Click"
+                    IsCancel="True"/>
+            <Button x:Name="ExecuteButton"
+                    Content="Execute"
+                    Width="100" Height="30"
+                    Click="ExecuteButton_Click"
+                    IsDefault="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

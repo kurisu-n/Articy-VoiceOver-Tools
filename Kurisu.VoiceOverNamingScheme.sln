@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kurisu.VoiceOverNamingScheme", "Kurisu.VoiceOverNamingScheme.csproj", "{D77E44EC-C7DC-479E-9F2C-2B02F8FAED8B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D77E44EC-C7DC-479E-9F2C-2B02F8FAED8B}.Debug|x64.ActiveCfg = Debug|x64
+		{D77E44EC-C7DC-479E-9F2C-2B02F8FAED8B}.Debug|x64.Build.0 = Debug|x64
+		{D77E44EC-C7DC-479E-9F2C-2B02F8FAED8B}.Release|x64.ActiveCfg = Release|x64
+		{D77E44EC-C7DC-479E-9F2C-2B02F8FAED8B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = 869dd684-565b-4f1f-8b65-308300477302
+	EndGlobalSection
+EndGlobal

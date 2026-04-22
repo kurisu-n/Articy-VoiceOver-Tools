@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<PluginManifest Type="MacroPlugin" >
+	<Name>Kurisu.VoiceOverNamingScheme</Name>
+	<Title>Dialogue System Voice Over Helper</Title>
+	<Version>1.0.2</Version>
+	<MinimumArticyVersion>4.1</MinimumArticyVersion>
+	<Developer>Kurisu</Developer>
+	<Description>Voice-over asset helpers for dialogue projects. Rename VO files to a consistent {hexId}_{culture} scheme, clean up orphaned audio assets not referenced by any DialogueFragment, and strip non-primary translations + voice-over references in one pass. All commands include a dry-run preview.</Description>
+	<!--
+	  optional manifest relative location of a 48x48 pixel image.
+	  It is used in the plugin info dialog and is scaled down to
+	  16x16 pixel if a GetIcon("$self") is not overridden or returns null.
+	-->
+	<IconFile>Resources\Icon.png</IconFile>
+	<Tags>Voice-Over, Dialogue, Asset Management, Rename, Localization</Tags>
+	<ReleaseNotes>
+    <![CDATA[V1.0.0- Initial release version]]>
+    <![CDATA[V1.0.1- Purge Voice Over and Translations Feature]]>
+    <![CDATA[V1.0.2- Added "Clean Up Orphaned Voice-Overs" command with dry-run / delete-Articy / delete-Articy+disk options. Added dry-run preview window to Rename commands with per-entry status (already correct / will rename / display-only / target exists / source missing) and click-to-navigate. New Articy-style dark theme for all plugin windows. Bug fixes: RemoveVoiceOvers now resumes localization state handling on exception; silent-placeholder WAV is cleaned from disk after removal; removed dead helpers and unused imports.]]>
+  </ReleaseNotes>
+	<Properties>
+		<!-- Is this plugin multi-user safe and properly checks claiming -->
+		<Property Name="MultiUser" Value="false" />
+		
+		<!-- Can this plugin be used in single user projects -->
+		<Property Name="SingleUser" Value="true" />
+
+		<!-- Can this plugin be used in within API programs -->
+		<Property Name="API" Value="false" />
+	</Properties>
+</PluginManifest>

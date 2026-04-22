@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Kurisu.VoiceOverNamingScheme": {
+      "commandName": "Project"
+    },
+    "Kurisu": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\articy draft X\\bin\\ArticyDraft.exe",
+      "commandLineArgs": "0:\\ArticyXCommandLine.config",
+      "workingDirectory": "C:\\Program Files\\articy draft X\\bin\\"
+    }
+  }
+}
