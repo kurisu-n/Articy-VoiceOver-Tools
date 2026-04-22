@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Kurisu.VoiceOverNamingScheme
+namespace Kurisu.VoiceOverTools
 {
     public partial class CleanupOrphanedAssetsWindow : Window
     {

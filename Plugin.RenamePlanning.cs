@@ -7,7 +7,7 @@ using Articy.Api;
 using Articy.Api.Plugins;
 using Articy.ModelFramework;
 
-namespace Kurisu.VoiceOverNamingScheme
+namespace Kurisu.VoiceOverTools
 {
     public partial class Plugin
     {

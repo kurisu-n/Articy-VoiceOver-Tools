@@ -3,11 +3,11 @@
 
 // please add this file to Version Control
 
-namespace LIds.Kurisu.VoiceOverNamingScheme
+namespace LIds.Kurisu.VoiceOverTools
 {
 	public static partial class Plugin
 	{
-		public const string DisplayName = "Kurisu.VoiceOverNamingScheme.Plugin.DisplayName";
-		public const string ContextName = "Kurisu.VoiceOverNamingScheme.Plugin.ContextName";
+		public const string DisplayName = "Kurisu.VoiceOverTools.Plugin.DisplayName";
+		public const string ContextName = "Kurisu.VoiceOverTools.Plugin.ContextName";
 	}
 }

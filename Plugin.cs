@@ -15,9 +15,9 @@ using LIds.Articy.Editor.Aspects.LocationEditor;
 using LIds.Articy.Editor.Filter;
 using LIds.Articy.Models.General.Link;
 using LIds.Articy.ModelsEx.TraitValues.Properties;
-using Texts = LIds.Kurisu.VoiceOverNamingScheme;
+using Texts = LIds.Kurisu.VoiceOverTools;
 
-namespace Kurisu.VoiceOverNamingScheme
+namespace Kurisu.VoiceOverTools
 {
 	/// <summary>
 	/// public implementation part of plugin code, contains all overrides of the plugin class.

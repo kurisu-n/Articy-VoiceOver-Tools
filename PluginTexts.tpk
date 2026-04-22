@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<TextPackage BaseNamespace="Kurisu.VoiceOverNamingScheme" GenerateIds="true" xmlns="http://nevigo.com/TextPackage.xsd" xml:space="preserve" >
+<TextPackage BaseNamespace="Kurisu.VoiceOverTools" GenerateIds="true" xmlns="http://nevigo.com/TextPackage.xsd" xml:space="preserve" >
 
   <Category Name="System" >
     <TextDefinition Key="Plugin.DisplayName">

@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace Kurisu.VoiceOverNamingScheme
+namespace Kurisu.VoiceOverTools
 {
     public partial class MessageWindow : Window
     {
