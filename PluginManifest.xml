@@ -6,7 +6,7 @@
 	<MinimumArticyVersion>4.1</MinimumArticyVersion>
 	<Developer>Christos Nasioutzikis</Developer>
 	<Description>Voice-over asset helpers for dialogue projects. Rename VO files to a consistent {hexId}_{culture} scheme, clean up orphaned audio assets not referenced by any DialogueFragment, and strip non-primary translations + voice-over references in one pass. All commands include a dry-run preview.</Description>
-	<ProjectUrl>https://github.com/kurisu-n/Kurisu.VoiceOverNamingScheme</ProjectUrl>
+	<ProjectUrl>https://github.com/kurisu-n/Articy-VoiceOver-Tools</ProjectUrl>
 	<!--
 	  optional manifest relative location of a 48x48 pixel image.
 	  It is used in the plugin info dialog and is scaled down to

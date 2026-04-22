@@ -1,6 +1,6 @@
-# Kurisu.VoiceOverNamingScheme
+# Articy VoiceOver Tools
 
-An Articy:draft X macro plugin for managing voice-over asset naming, cleanup, and translation stripping across DialogueFragments.
+An Articy:draft X macro plugin for managing voice-over asset naming, cleanup, and translation stripping across DialogueFragments. Internal plugin id: `Kurisu.VoiceOverNamingScheme`.
 
 ## Features
 
