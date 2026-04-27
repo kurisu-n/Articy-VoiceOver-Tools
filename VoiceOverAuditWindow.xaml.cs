@@ -27,6 +27,7 @@ namespace Kurisu.VoiceOverTools
         }
 
         private const string AllCharactersOption = "(all characters)";
+        private const string AllPathsOption = "(all paths)";
 
         private Action<int> _onNavigateFragment;
         private Action<int> _onNavigateAsset;
@@ -35,6 +36,7 @@ namespace Kurisu.VoiceOverTools
         private readonly HashSet<int> _visibleCategories = new() { 0, 1, 2 };
         private readonly HashSet<string> _visibleProperties = new(StringComparer.Ordinal);
         private string _selectedSpeaker = AllCharactersOption;
+        private string _selectedPath = AllPathsOption;
         private int _totalCount;
 
         public VoiceOverAuditWindow()
@@ -56,6 +58,7 @@ namespace Kurisu.VoiceOverTools
             int overlapping,
             IReadOnlyList<string> speakers,
             IReadOnlyList<string> propertyNames,
+            IReadOnlyList<string> pathPrefixes,
             Action<int> onNavigateFragment,
             Action<int> onNavigateAsset)
         {
@@ -71,11 +74,18 @@ namespace Kurisu.VoiceOverTools
             OverlappingCount.Text = overlapping.ToString();
 
             // Build the character filter list with "(all characters)" first.
-            var combo = new List<string> { AllCharactersOption };
-            combo.AddRange(speakers);
-            CharacterFilterComboBox.ItemsSource = combo;
+            var characters = new List<string> { AllCharactersOption };
+            characters.AddRange(speakers);
+            CharacterFilterComboBox.ItemsSource = characters;
             CharacterFilterComboBox.SelectedIndex = 0;
             _selectedSpeaker = AllCharactersOption;
+
+            // Build the path filter list with "(all paths)" first.
+            var paths = new List<string> { AllPathsOption };
+            paths.AddRange(pathPrefixes);
+            PathFilterComboBox.ItemsSource = paths;
+            PathFilterComboBox.SelectedIndex = 0;
+            _selectedPath = AllPathsOption;
 
             BuildPropertyToggles(propertyNames);
 
@@ -166,12 +176,29 @@ namespace Kurisu.VoiceOverTools
             ApplyFilter();
         }
 
+        private void PathFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PathFilterComboBox.SelectedItem is string s) _selectedPath = s;
+            ApplyFilter();
+        }
+
         private void ApplyFilter()
         {
             IEnumerable<Row> filtered = _allRows.Where(r => _visibleCategories.Contains(r.CategoryKey));
 
             if (_selectedSpeaker != AllCharactersOption)
                 filtered = filtered.Where(r => string.Equals(r.SpeakerName, _selectedSpeaker, StringComparison.Ordinal));
+
+            // Path filter — picking a prefix matches the row's path either exactly (selected leaf)
+            // or as an ancestor (selected an intermediate folder).
+            if (_selectedPath != AllPathsOption)
+            {
+                var prefix = _selectedPath;
+                var prefixWithSep = prefix + " / ";
+                filtered = filtered.Where(r =>
+                    !string.IsNullOrEmpty(r.FragmentPath) &&
+                    (r.FragmentPath == prefix || r.FragmentPath.StartsWith(prefixWithSep, StringComparison.Ordinal)));
+            }
 
             // Property filter (only effective when the property toggle area is visible — i.e. >1
             // property type was found in the audit).
@@ -190,9 +217,9 @@ namespace Kurisu.VoiceOverTools
             if (_totalCount == 0)
                 FilterStatusTextBlock.Text = "No issues found. All voice-over references are healthy.";
             else if (list.Count == _totalCount)
-                FilterStatusTextBlock.Text = "Click a category, property, or character to filter.";
+                FilterStatusTextBlock.Text = "Click a category, property, character, or path to filter.";
             else
-                FilterStatusTextBlock.Text = $"Showing {list.Count} of {_totalCount}.  Click a category, property, or character.";
+                FilterStatusTextBlock.Text = $"Showing {list.Count} of {_totalCount}.  Click a category, property, character, or path.";
         }
 
         private void AuditListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

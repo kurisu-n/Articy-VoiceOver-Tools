@@ -69,6 +69,24 @@ namespace Kurisu.VoiceOverTools
                 .OrderBy(p => p, StringComparer.Ordinal)
                 .ToList();
 
+            // Build the unique path-prefix list. Each fragment's path produces one prefix per
+            // depth level (e.g. "Episode 01" / "Episode 01 / Scene A" / ...), letting the user
+            // filter at any level. Alphabetical sort naturally groups children under their parent.
+            var pathPrefixes = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var entry in entries)
+            {
+                var path = entry.FragmentPath;
+                if (string.IsNullOrEmpty(path)) continue;
+                var segments = path.Split(new[] { " / " }, StringSplitOptions.None);
+                var prefix = "";
+                for (int i = 0; i < segments.Length; i++)
+                {
+                    prefix = i == 0 ? segments[0] : prefix + " / " + segments[i];
+                    pathPrefixes.Add(prefix);
+                }
+            }
+            var sortedPaths = pathPrefixes.OrderBy(p => p, StringComparer.Ordinal).ToList();
+
             var window = new VoiceOverAuditWindow();
             var skipped = fragments.Count - totalScanned;
             var scopeSummary =
@@ -83,6 +101,7 @@ namespace Kurisu.VoiceOverTools
                 missing, corrupted, overlapping,
                 speakers,
                 propertyNames,
+                sortedPaths,
                 onNavigateFragment: idx => NavigateToObject(entries[idx].Fragment),
                 onNavigateAsset:    idx => NavigateToObject(entries[idx].Asset));
 

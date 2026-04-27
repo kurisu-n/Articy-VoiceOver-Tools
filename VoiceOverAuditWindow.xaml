@@ -44,6 +44,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -124,34 +125,49 @@
                     </CheckBox>
                 </Grid>
 
-                <TextBlock Grid.Row="2" Grid.ColumnSpan="3"
+                <Grid Grid.Row="2" Grid.ColumnSpan="3"
+                      Margin="2,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <TextBlock Text="Character:"
+                                   Style="{DynamicResource HintTextStyle}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,6,0"/>
+                        <ComboBox x:Name="CharacterFilterComboBox"
+                                  MinWidth="160"
+                                  Height="24"
+                                  VerticalContentAlignment="Center"
+                                  SelectionChanged="CharacterFilterComboBox_SelectionChanged"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Path:"
+                                   Style="{DynamicResource HintTextStyle}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,6,0"/>
+                        <ComboBox x:Name="PathFilterComboBox"
+                                  MinWidth="280"
+                                  Height="24"
+                                  VerticalContentAlignment="Center"
+                                  SelectionChanged="PathFilterComboBox_SelectionChanged"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Grid.Row="3" Grid.ColumnSpan="3"
                            x:Name="FilterStatusTextBlock"
                            Style="{DynamicResource HintTextStyle}"
-                           Text="Click a category, property, or character to filter."
-                           Margin="2,6,0,0"/>
+                           Text="Click a category, property, character, or path to filter."
+                           Margin="2,8,0,0"/>
             </Grid>
         </Border>
 
         <Grid Grid.Row="2" Margin="0,0,0,6">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="Character:"
-                           VerticalAlignment="Center"
-                           Style="{DynamicResource HintTextStyle}"
-                           Margin="0,0,6,0"/>
-                <ComboBox x:Name="CharacterFilterComboBox"
-                          MinWidth="180"
-                          Height="26"
-                          VerticalContentAlignment="Center"
-                          SelectionChanged="CharacterFilterComboBox_SelectionChanged"/>
-            </StackPanel>
-
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Style="{DynamicResource HintTextStyle}"
                            Text="Select a row to jump:"
                            VerticalAlignment="Center"
