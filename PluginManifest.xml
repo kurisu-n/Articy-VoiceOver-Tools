@@ -2,7 +2,7 @@
 <PluginManifest Type="MacroPlugin" >
 	<Name>Kurisu.VoiceOverTools</Name>
 	<Title>Dialogue System Voice Over Helper</Title>
-	<Version>1.0.8</Version>
+	<Version>1.0.9</Version>
 	<MinimumArticyVersion>4.1</MinimumArticyVersion>
 	<Developer>Christos Nasioutzikis</Developer>
 	<Description>Voice-over asset helpers for dialogue projects. Rename VO files to a consistent {hexId}_{culture} scheme, clean up orphaned audio assets not referenced by any DialogueFragment, and strip non-primary translations + voice-over references in one pass. All commands include a dry-run preview.</Description>
@@ -24,6 +24,7 @@
     <![CDATA[V1.0.6- Audit row redesign for transparency. Each entry now shows the navigator path of the fragment, the actual dialogue line in the audited language, and the issue detail in a structured 4-line layout with proper visual hierarchy (category icon + label, speaker, id+lang, path, quoted line, detail). Full ComboBox / ComboBoxItem template overrides so the character-filter dropdown is properly themed (was unreadable in dark mode previously).]]>
     <![CDATA[V1.0.7- Audit property + empty-line filtering. Each row now shows which text property the issue is for (.Text, .PreviewText, etc.) as a small monospaced badge in the header. New per-property toggle row dynamically built from the property names found in the audit (hidden when only one property type is present). New "Include empty lines" checkbox — hides rows whose dialogue text is blank by default (fragments not yet written), opt-in to include them.]]>
     <![CDATA[V1.0.8- Audit by-path filter + UX polish. New "Path:" dropdown listing all path prefixes found in the audit (top-level folders, sub-folders, deeper) — picking a prefix narrows results to fragments under that branch. Works at any depth. All filters (categories / property / character / path / include-empty) consolidated into the summary panel for a cleaner hierarchy. Custom-templated CheckBox so the empty-lines toggle blends with the dark theme (was previously default-WPF-styled and out of place). Third grid row simplified to nav-buttons-only.]]>
+    <![CDATA[V1.0.9- Audit UX iteration. Empty-lines toggle promoted from a separate checkbox to a 4th category-style pill (off by default) so all primary filters share the same visual language. Character + Path filters moved back to the toolbar row alongside the Show buttons. Path picker rebuilt as a hierarchical ContextMenu — top-level folders cascade rightward into subfolders to any depth, with a "(this folder)" entry under each parent so you can filter at any intermediate level. Themed MenuItem / Separator / ContextMenu so the dropdown matches the dark palette.]]>
   </ReleaseNotes>
 	<Properties>
 		<!-- Is this plugin multi-user safe and properly checks claiming -->

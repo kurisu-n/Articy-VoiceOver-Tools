@@ -20,8 +20,8 @@ namespace Kurisu.VoiceOverTools
             public string FragmentPath { get; set; }
             public string LineText { get; set; }
             public string Detail { get; set; }
-            public string PropertyName { get; set; }      // raw, e.g. "Text"
-            public string PropertyLabel { get; set; }     // display, e.g. ".Text"
+            public string PropertyName { get; set; }
+            public string PropertyLabel { get; set; }
             public bool HasAsset { get; set; }
             public int CategoryKey { get; set; }
         }
@@ -37,6 +37,7 @@ namespace Kurisu.VoiceOverTools
         private readonly HashSet<string> _visibleProperties = new(StringComparer.Ordinal);
         private string _selectedSpeaker = AllCharactersOption;
         private string _selectedPath = AllPathsOption;
+        private bool _includeEmpty;
         private int _totalCount;
 
         public VoiceOverAuditWindow()
@@ -56,6 +57,7 @@ namespace Kurisu.VoiceOverTools
             int missing,
             int corrupted,
             int overlapping,
+            int empty,
             IReadOnlyList<string> speakers,
             IReadOnlyList<string> propertyNames,
             IReadOnlyList<string> pathPrefixes,
@@ -72,6 +74,7 @@ namespace Kurisu.VoiceOverTools
             MissingCount.Text = missing.ToString();
             CorruptedCount.Text = corrupted.ToString();
             OverlappingCount.Text = overlapping.ToString();
+            EmptyCount.Text = empty.ToString();
 
             // Build the character filter list with "(all characters)" first.
             var characters = new List<string> { AllCharactersOption };
@@ -80,31 +83,31 @@ namespace Kurisu.VoiceOverTools
             CharacterFilterComboBox.SelectedIndex = 0;
             _selectedSpeaker = AllCharactersOption;
 
-            // Build the path filter list with "(all paths)" first.
-            var paths = new List<string> { AllPathsOption };
-            paths.AddRange(pathPrefixes);
-            PathFilterComboBox.ItemsSource = paths;
-            PathFilterComboBox.SelectedIndex = 0;
+            // Build the hierarchical path picker (ContextMenu attached to the dropdown button).
+            BuildPathContextMenu(pathPrefixes);
             _selectedPath = AllPathsOption;
+            PathDropdownLabel.Text = AllPathsOption;
 
             BuildPropertyToggles(propertyNames);
 
             ApplyFilter();
         }
 
-        /// <summary>
-        /// Builds one toggle per property name found in the audit. The property toggle area
-        /// is hidden when only one property type is present (no point cluttering the UI),
-        /// but the surrounding toolbar row stays visible because the empty-lines checkbox
-        /// always belongs there.
-        /// </summary>
+        // ─── Empty toggle (4th category-style pill) ─────────────────────────────────────────────
+
+        private void EmptyFilter_Click(object sender, RoutedEventArgs e)
+        {
+            _includeEmpty = EmptyToggle.IsChecked == true;
+            ApplyFilter();
+        }
+
+        // ─── Property toggles (dynamic per audit) ───────────────────────────────────────────────
+
         private void BuildPropertyToggles(IReadOnlyList<string> propertyNames)
         {
             PropertyTogglesPanel.Children.Clear();
             _visibleProperties.Clear();
 
-            // Always populate the visible-set: even when only one property type is present
-            // we want it to pass the filter.
             if (propertyNames != null)
                 foreach (var p in propertyNames)
                     _visibleProperties.Add(p);
@@ -141,10 +144,19 @@ namespace Kurisu.VoiceOverTools
             }
         }
 
-        private void IncludeEmptyCheckbox_Click(object sender, RoutedEventArgs e)
+        private void PropertyFilter_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is not ToggleButton tb) return;
+            var name = tb.Tag as string;
+            if (string.IsNullOrEmpty(name)) return;
+
+            if (tb.IsChecked == true) _visibleProperties.Add(name);
+            else _visibleProperties.Remove(name);
+
             ApplyFilter();
         }
+
+        // ─── Category toggles ───────────────────────────────────────────────────────────────────
 
         private void CategoryFilter_Click(object sender, RoutedEventArgs e)
         {
@@ -158,17 +170,7 @@ namespace Kurisu.VoiceOverTools
             ApplyFilter();
         }
 
-        private void PropertyFilter_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is not ToggleButton tb) return;
-            var name = tb.Tag as string;
-            if (string.IsNullOrEmpty(name)) return;
-
-            if (tb.IsChecked == true) _visibleProperties.Add(name);
-            else _visibleProperties.Remove(name);
-
-            ApplyFilter();
-        }
+        // ─── Character filter ───────────────────────────────────────────────────────────────────
 
         private void CharacterFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -176,11 +178,106 @@ namespace Kurisu.VoiceOverTools
             ApplyFilter();
         }
 
-        private void PathFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        // ─── Path filter (hierarchical ContextMenu) ─────────────────────────────────────────────
+
+        private sealed class PathNode
         {
-            if (PathFilterComboBox.SelectedItem is string s) _selectedPath = s;
+            public string Segment;
+            public string FullPath;
+            public List<PathNode> Children = new();
+        }
+
+        private void BuildPathContextMenu(IReadOnlyList<string> pathPrefixes)
+        {
+            var menu = new ContextMenu();
+
+            // "(all paths)" reset entry
+            var allItem = new MenuItem { Header = AllPathsOption };
+            allItem.Click += (s, e) => { SelectPath(AllPathsOption); e.Handled = true; };
+            menu.Items.Add(allItem);
+            menu.Items.Add(new Separator());
+
+            // Build the tree from the flat prefix list, then realize it as nested MenuItems.
+            var root = new PathNode();
+            if (pathPrefixes != null)
+            {
+                foreach (var prefix in pathPrefixes)
+                {
+                    if (string.IsNullOrEmpty(prefix)) continue;
+                    var segments = prefix.Split(new[] { " / " }, StringSplitOptions.None);
+                    var current = root;
+                    var built = "";
+                    for (int i = 0; i < segments.Length; i++)
+                    {
+                        built = i == 0 ? segments[0] : built + " / " + segments[i];
+                        var existing = current.Children.FirstOrDefault(c => c.Segment == segments[i]);
+                        if (existing == null)
+                        {
+                            existing = new PathNode { Segment = segments[i], FullPath = built };
+                            current.Children.Add(existing);
+                        }
+                        current = existing;
+                    }
+                }
+            }
+            SortTree(root);
+
+            foreach (var node in root.Children)
+                menu.Items.Add(BuildMenuItem(node));
+
+            PathDropdownButton.ContextMenu = menu;
+        }
+
+        private static void SortTree(PathNode node)
+        {
+            node.Children.Sort((a, b) => StringComparer.Ordinal.Compare(a.Segment, b.Segment));
+            foreach (var c in node.Children) SortTree(c);
+        }
+
+        /// <summary>
+        /// Builds a MenuItem for a path node. Leaves get a direct Click that selects the path.
+        /// Nodes with children get a synthetic "(this folder)" leaf at the top of their submenu
+        /// so the user can pick the prefix at any intermediate level.
+        /// </summary>
+        private MenuItem BuildMenuItem(PathNode node)
+        {
+            var item = new MenuItem { Header = node.Segment };
+
+            if (node.Children.Count > 0)
+            {
+                var selfItem = new MenuItem { Header = "↩ " + node.Segment + " (this folder)" };
+                selfItem.Click += (s, e) => { SelectPath(node.FullPath); e.Handled = true; };
+                item.Items.Add(selfItem);
+                item.Items.Add(new Separator());
+
+                foreach (var child in node.Children)
+                    item.Items.Add(BuildMenuItem(child));
+            }
+            else
+            {
+                item.Click += (s, e) => { SelectPath(node.FullPath); e.Handled = true; };
+            }
+
+            return item;
+        }
+
+        private void SelectPath(string path)
+        {
+            _selectedPath = path;
+            PathDropdownLabel.Text = string.IsNullOrEmpty(path) ? AllPathsOption : path;
             ApplyFilter();
         }
+
+        private void PathDropdownButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (PathDropdownButton.ContextMenu == null) return;
+            PathDropdownButton.ContextMenu.PlacementTarget = PathDropdownButton;
+            PathDropdownButton.ContextMenu.Placement = PlacementMode.Bottom;
+            PathDropdownButton.ContextMenu.MinWidth = PathDropdownButton.ActualWidth;
+            PathDropdownButton.ContextMenu.IsOpen = true;
+        }
+
+        // ─── Filter pipeline ────────────────────────────────────────────────────────────────────
 
         private void ApplyFilter()
         {
@@ -189,8 +286,6 @@ namespace Kurisu.VoiceOverTools
             if (_selectedSpeaker != AllCharactersOption)
                 filtered = filtered.Where(r => string.Equals(r.SpeakerName, _selectedSpeaker, StringComparison.Ordinal));
 
-            // Path filter — picking a prefix matches the row's path either exactly (selected leaf)
-            // or as an ancestor (selected an intermediate folder).
             if (_selectedPath != AllPathsOption)
             {
                 var prefix = _selectedPath;
@@ -200,15 +295,11 @@ namespace Kurisu.VoiceOverTools
                     (r.FragmentPath == prefix || r.FragmentPath.StartsWith(prefixWithSep, StringComparison.Ordinal)));
             }
 
-            // Property filter (only effective when the property toggle area is visible — i.e. >1
-            // property type was found in the audit).
             if (PropertyAreaPanel.Visibility == Visibility.Visible)
                 filtered = filtered.Where(r => string.IsNullOrEmpty(r.PropertyName) || _visibleProperties.Contains(r.PropertyName));
 
-            // Empty-line filter — opt-in via the "Include empty lines" checkbox, default off.
-            // Hides rows where the dialogue line is blank, which usually means the fragment
-            // is just a placeholder / not yet written and would be noise in the audit.
-            if (IncludeEmptyCheckbox.IsChecked != true)
+            // Empty-line filter — opt-in via the EmptyToggle (4th category pill, default unchecked).
+            if (!_includeEmpty)
                 filtered = filtered.Where(r => !string.IsNullOrWhiteSpace(r.LineText));
 
             var list = filtered.ToList();
@@ -221,6 +312,8 @@ namespace Kurisu.VoiceOverTools
             else
                 FilterStatusTextBlock.Text = $"Showing {list.Count} of {_totalCount}.  Click a category, property, character, or path.";
         }
+
+        // ─── Selection / navigation ─────────────────────────────────────────────────────────────
 
         private void AuditListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

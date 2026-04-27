@@ -49,6 +49,7 @@ namespace Kurisu.VoiceOverTools
             int missing     = entries.Count(e => e.Category == AuditCategory.Missing);
             int corrupted   = entries.Count(e => e.Category == AuditCategory.Corrupted);
             int overlapping = entries.Count(e => e.Category == AuditCategory.Overlapping);
+            int emptyCount  = entries.Count(e => string.IsNullOrWhiteSpace(e.LineText));
 
             var rows = entries.Select(BuildAuditRow).ToList();
 
@@ -98,7 +99,7 @@ namespace Kurisu.VoiceOverTools
             window.Populate(
                 scopeSummary,
                 rows,
-                missing, corrupted, overlapping,
+                missing, corrupted, overlapping, emptyCount,
                 speakers,
                 propertyNames,
                 sortedPaths,

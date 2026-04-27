@@ -44,9 +44,9 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -94,71 +94,33 @@
                     </StackPanel>
                 </ToggleButton>
 
-                <Grid Grid.Row="1" Grid.ColumnSpan="3"
-                      x:Name="FilterToolbarRow"
-                      Margin="2,6,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0"
-                                x:Name="PropertyAreaPanel"
-                                Orientation="Horizontal">
-                        <TextBlock Text="Property:"
-                                   Style="{DynamicResource HintTextStyle}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,8,0"/>
-                        <StackPanel x:Name="PropertyTogglesPanel"
-                                    Orientation="Horizontal"/>
-                    </StackPanel>
-
-                    <CheckBox Grid.Column="1"
-                              x:Name="IncludeEmptyCheckbox"
+                <ToggleButton Grid.Row="0" Grid.Column="3"
+                              x:Name="EmptyToggle"
+                              Style="{DynamicResource CategoryToggleStyle}"
                               IsChecked="False"
-                              VerticalAlignment="Center"
-                              Click="IncludeEmptyCheckbox_Click">
-                        <TextBlock Text="Include empty lines"
-                                   FontSize="11"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   VerticalAlignment="Center"/>
-                    </CheckBox>
-                </Grid>
-
-                <Grid Grid.Row="2" Grid.ColumnSpan="3"
-                      Margin="2,6,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
-                        <TextBlock Text="Character:"
-                                   Style="{DynamicResource HintTextStyle}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,6,0"/>
-                        <ComboBox x:Name="CharacterFilterComboBox"
-                                  MinWidth="160"
-                                  Height="24"
-                                  VerticalContentAlignment="Center"
-                                  SelectionChanged="CharacterFilterComboBox_SelectionChanged"/>
+                              Click="EmptyFilter_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="—" Foreground="{DynamicResource TextSecondaryBrush}" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Margin="0,0,6,0"/>
+                        <StackPanel>
+                            <TextBlock x:Name="EmptyCount" Text="0" FontWeight="Bold"/>
+                            <TextBlock Text="Empty (off)" Style="{DynamicResource HintTextStyle}"/>
+                        </StackPanel>
                     </StackPanel>
+                </ToggleButton>
 
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Path:"
-                                   Style="{DynamicResource HintTextStyle}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,6,0"/>
-                        <ComboBox x:Name="PathFilterComboBox"
-                                  MinWidth="280"
-                                  Height="24"
-                                  VerticalContentAlignment="Center"
-                                  SelectionChanged="PathFilterComboBox_SelectionChanged"/>
-                    </StackPanel>
-                </Grid>
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="4"
+                            x:Name="PropertyAreaPanel"
+                            Orientation="Horizontal"
+                            Margin="2,6,0,0">
+                    <TextBlock Text="Property:"
+                               Style="{DynamicResource HintTextStyle}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <StackPanel x:Name="PropertyTogglesPanel"
+                                Orientation="Horizontal"/>
+                </StackPanel>
 
-                <TextBlock Grid.Row="3" Grid.ColumnSpan="3"
+                <TextBlock Grid.Row="2" Grid.ColumnSpan="4"
                            x:Name="FilterStatusTextBlock"
                            Style="{DynamicResource HintTextStyle}"
                            Text="Click a category, property, character, or path to filter."
@@ -167,20 +129,73 @@
         </Border>
 
         <Grid Grid.Row="2" Margin="0,0,0,6">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                <TextBlock Text="Character:"
+                           Style="{DynamicResource HintTextStyle}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"/>
+                <ComboBox x:Name="CharacterFilterComboBox"
+                          MinWidth="150"
+                          Height="24"
+                          VerticalContentAlignment="Center"
+                          SelectionChanged="CharacterFilterComboBox_SelectionChanged"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Path:"
+                           Style="{DynamicResource HintTextStyle}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0"/>
+                <Button x:Name="PathDropdownButton"
+                        MinWidth="240" MaxWidth="320"
+                        Height="24"
+                        Click="PathDropdownButton_Click"
+                        Style="{DynamicResource DropdownButtonStyle}"
+                        HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="PathDropdownLabel"
+                                   Grid.Column="0"
+                                   Text="(all paths)"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   FontFamily="Segoe UI"
+                                   FontSize="12"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   HorizontalAlignment="Left"
+                                   Margin="0,0,6,0"/>
+                        <Path Grid.Column="1"
+                              Data="M 0 0 L 4 4 L 8 0 Z"
+                              Fill="{DynamicResource TextSecondaryBrush}"
+                              VerticalAlignment="Center"/>
+                    </Grid>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Style="{DynamicResource HintTextStyle}"
                            Text="Select a row to jump:"
                            VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
                 <Button x:Name="ShowFragmentButton"
                         Content="Show Fragment"
-                        Width="140" Height="26"
+                        Width="130" Height="26"
                         Margin="0,0,6,0"
                         IsEnabled="False"
                         Click="ShowFragmentButton_Click"/>
                 <Button x:Name="ShowAssetButton"
                         Content="Show VO Asset"
-                        Width="140" Height="26"
+                        Width="130" Height="26"
                         IsEnabled="False"
                         Click="ShowAssetButton_Click"/>
             </StackPanel>
