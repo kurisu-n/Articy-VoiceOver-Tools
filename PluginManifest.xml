@@ -2,7 +2,7 @@
 <PluginManifest Type="MacroPlugin" >
 	<Name>Kurisu.VoiceOverTools</Name>
 	<Title>Dialogue System Voice Over Helper</Title>
-	<Version>1.0.11</Version>
+	<Version>1.0.12</Version>
 	<MinimumArticyVersion>4.1</MinimumArticyVersion>
 	<Developer>Christos Nasioutzikis</Developer>
 	<Description>Voice-over asset helpers for dialogue projects. Rename VO files to a consistent {hexId}_{culture} scheme, clean up orphaned audio assets not referenced by any DialogueFragment, and strip non-primary translations + voice-over references in one pass. All commands include a dry-run preview.</Description>
@@ -26,7 +26,8 @@
     <![CDATA[V1.0.8- Audit by-path filter + UX polish. New "Path:" dropdown listing all path prefixes found in the audit (top-level folders, sub-folders, deeper) — picking a prefix narrows results to fragments under that branch. Works at any depth. All filters (categories / property / character / path / include-empty) consolidated into the summary panel for a cleaner hierarchy. Custom-templated CheckBox so the empty-lines toggle blends with the dark theme (was previously default-WPF-styled and out of place). Third grid row simplified to nav-buttons-only.]]>
     <![CDATA[V1.0.9- Audit UX iteration. Empty-lines toggle promoted from a separate checkbox to a 4th category-style pill (off by default) so all primary filters share the same visual language. Character + Path filters moved back to the toolbar row alongside the Show buttons. Path picker rebuilt as a hierarchical ContextMenu — top-level folders cascade rightward into subfolders to any depth, with a "(this folder)" entry under each parent so you can filter at any intermediate level. Themed MenuItem / Separator / ContextMenu so the dropdown matches the dark palette.]]>
     <![CDATA[V1.0.10- Audit dropdown stripe fix. ContextMenu is a logical-tree island in WPF — implicit MenuItem styles defined at the Window level were not propagating into it, so menu items rendered with the default Aero template (white-on-light icon column gutter on the left). Fixed by merging the theme dictionaries into the ContextMenu's own Resources and assigning the themed style explicitly to every MenuItem and Separator built in code.]]>
-    <![CDATA[V1.0.11- Stripe fix v2 + Kurisu submenu. v1.0.10 didn't fully eliminate the white stripe in the path picker. v1.0.11 extracts the ControlTemplates as keyed resources and assigns them DIRECTLY on the ContextMenu and every MenuItem in code (Style propagation through Popup boundaries is unreliable in WPF). Also overrides Aero's role-keyed SubmenuItem/SubmenuHeader templates so the default never gets a chance to apply. All five plugin commands now prefixed "Kurisu/" so they group under a Kurisu submenu in the ribbon and right-click context menu (Articy menu-hierarchy convention).]]>
+    <![CDATA[V1.0.11- Stripe fix v2 + Kurisu submenu. v1.0.10 didn't fully eliminate the white stripe in the path picker. v1.0.11 extracts the ControlTemplates as keyed resources and assigns them DIRECTLY on the ContextMenu and every MenuItem in code (Style propagation through Popup boundaries is unreliable in WPF). Also overrides Aero's role-keyed SubmenuItem/SubmenuHeader templates so the default never gets a chance to apply.]]>
+    <![CDATA[V1.0.12- Kurisu submenu (correct separator). Articy uses BACKSLASH not slash as the submenu separator in CaptionLid (per https://www.articy.com/adxdevkit/html/writing_a_plugin.htm). v1.0.11 used 'Kurisu/' which Articy rendered as a literal flat command name. Switched to 'Kurisu\\' so all five commands now actually group under a Kurisu submenu in the ribbon and right-click menu.]]>
   </ReleaseNotes>
 	<Properties>
 		<!-- Is this plugin multi-user safe and properly checks claiming -->

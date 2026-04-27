@@ -34,13 +34,12 @@ namespace Kurisu.VoiceOverTools
 			get { return LocalizeStringNoFormat(Texts.Plugin.ContextName); }
 		}
 
-		// Articy's command-bar / context-menu reads CaptionLid for display text. Many plugin
-		// frameworks (and Articy by convention) treat "/" inside a caption as a submenu
-		// separator — prefixing every command with "Kurisu/" groups them under a single
-		// Kurisu submenu in the ribbon and the right-click menu. If a future Articy version
-		// renders the slash literally instead of as a separator, change this prefix to a
-		// no-op.
-		private const string MenuPrefix = "Kurisu/";
+		// Articy uses BACKSLASH ('\') as the submenu separator inside CaptionLid — see
+		// https://www.articy.com/adxdevkit/html/writing_a_plugin.htm. Prefixing every command
+		// with "Kurisu\" groups them under a single Kurisu submenu in the ribbon and the
+		// right-click menu. (Forward slash is rendered literally by Articy, which is why an
+		// earlier attempt with "Kurisu/" produced a flat command name.)
+		private const string MenuPrefix = "Kurisu\\";
 
 		public override List<MacroCommandDescriptor> GetMenuEntries(List<ObjectProxy> aSelectedObjects, ContextMenuContext aContext )
 		{
