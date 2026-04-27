@@ -43,6 +43,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -92,11 +93,42 @@
                     </StackPanel>
                 </ToggleButton>
 
-                <TextBlock Grid.Row="1" Grid.ColumnSpan="3"
+                <Grid Grid.Row="1" Grid.ColumnSpan="3"
+                      x:Name="FilterToolbarRow"
+                      Margin="2,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0"
+                                x:Name="PropertyAreaPanel"
+                                Orientation="Horizontal">
+                        <TextBlock Text="Property:"
+                                   Style="{DynamicResource HintTextStyle}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <StackPanel x:Name="PropertyTogglesPanel"
+                                    Orientation="Horizontal"/>
+                    </StackPanel>
+
+                    <CheckBox Grid.Column="1"
+                              x:Name="IncludeEmptyCheckbox"
+                              IsChecked="False"
+                              VerticalAlignment="Center"
+                              Click="IncludeEmptyCheckbox_Click">
+                        <TextBlock Text="Include empty lines"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </CheckBox>
+                </Grid>
+
+                <TextBlock Grid.Row="2" Grid.ColumnSpan="3"
                            x:Name="FilterStatusTextBlock"
                            Style="{DynamicResource HintTextStyle}"
-                           Text="Click a category to toggle it on/off."
-                           Margin="2,4,0,0"/>
+                           Text="Click a category, property, or character to filter."
+                           Margin="2,6,0,0"/>
             </Grid>
         </Border>
 
@@ -158,9 +190,10 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- HEADER: [icon + Category badge] · Speaker · ID + Lang -->
+                            <!-- HEADER: [icon] [CATEGORY] [.PropertyName] · Speaker · ID + Lang -->
                             <Grid Grid.Row="0">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -183,9 +216,23 @@
                                            FontSize="12"
                                            FontWeight="Bold"
                                            VerticalAlignment="Center"
-                                           Margin="0,0,16,0"/>
+                                           Margin="0,0,10,0"/>
 
-                                <TextBlock Grid.Column="2"
+                                <Border Grid.Column="2"
+                                        Background="{DynamicResource DarkBgBrush}"
+                                        BorderBrush="{DynamicResource BorderDarkBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="2"
+                                        Padding="5,1"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,12,0">
+                                    <TextBlock Text="{Binding PropertyLabel}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               FontFamily="Consolas"
+                                               FontSize="11"/>
+                                </Border>
+
+                                <TextBlock Grid.Column="3"
                                            Text="{Binding SpeakerName}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            FontFamily="Segoe UI"
@@ -193,7 +240,7 @@
                                            FontWeight="SemiBold"
                                            VerticalAlignment="Center"/>
 
-                                <TextBlock Grid.Column="3"
+                                <TextBlock Grid.Column="4"
                                            Text="{Binding IdAndLang}"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            FontFamily="Consolas"

@@ -29,6 +29,7 @@ namespace Kurisu.VoiceOverTools
             public string SpeakerName;
             public string FragmentPath;   // navigator path to the fragment (root segment trimmed)
             public string LineText;       // the text the character would say in this language
+            public string PropertyName;   // which text property: "Text", "PreviewText", etc.
             public AuditCategory Category;
         }
 
@@ -58,6 +59,16 @@ namespace Kurisu.VoiceOverTools
                 .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
+            // Build the unique property-name list for the property toggle filter.
+            // Articy's per-property HasVoiceOver flag (set in template editor) is what determines
+            // whether a property is scanned at all; this list is whatever survived that filter.
+            var propertyNames = entries
+                .Select(e => e.PropertyName ?? "")
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Distinct()
+                .OrderBy(p => p, StringComparer.Ordinal)
+                .ToList();
+
             var window = new VoiceOverAuditWindow();
             var skipped = fragments.Count - totalScanned;
             var scopeSummary =
@@ -71,6 +82,7 @@ namespace Kurisu.VoiceOverTools
                 rows,
                 missing, corrupted, overlapping,
                 speakers,
+                propertyNames,
                 onNavigateFragment: idx => NavigateToObject(entries[idx].Fragment),
                 onNavigateAsset:    idx => NavigateToObject(entries[idx].Asset));
 
@@ -90,7 +102,7 @@ namespace Kurisu.VoiceOverTools
             // Also build the asset-usage map for overlap detection in pass 2.
             // assetUsage tuple caches everything we'd need to render an Overlap entry
             // without re-walking the fragment.
-            var assetUsage = new Dictionary<ulong, List<(ObjectProxy fragment, string culture, string srcPath, string speaker, string path, string line)>>();
+            var assetUsage = new Dictionary<ulong, List<(ObjectProxy fragment, string culture, string srcPath, string speaker, string path, string line, string propName)>>();
 
             foreach (var fragment in fragments)
             {
@@ -138,7 +150,8 @@ namespace Kurisu.VoiceOverTools
                                 Detail = "no VO asset assigned for this language",
                                 SpeakerName = speakerName,
                                 FragmentPath = fragmentPath,
-                                LineText = lineText
+                                LineText = lineText,
+                                PropertyName = prop
                             });
                             continue;
                         }
@@ -158,15 +171,16 @@ namespace Kurisu.VoiceOverTools
                                 Detail = corruptionReason,
                                 SpeakerName = speakerName,
                                 FragmentPath = fragmentPath,
-                                LineText = lineText
+                                LineText = lineText,
+                                PropertyName = prop
                             });
                             continue;
                         }
 
                         // Healthy — track for overlap detection.
                         if (!assetUsage.TryGetValue(asset.Id, out var list))
-                            assetUsage[asset.Id] = list = new List<(ObjectProxy, string, string, string, string, string)>();
-                        list.Add((fragment, culture, srcPath, speakerName, fragmentPath, lineText));
+                            assetUsage[asset.Id] = list = new List<(ObjectProxy, string, string, string, string, string, string)>();
+                        list.Add((fragment, culture, srcPath, speakerName, fragmentPath, lineText, prop));
                     }
                 }
             }
@@ -178,7 +192,7 @@ namespace Kurisu.VoiceOverTools
                 var distinctFragmentIds = refs.Select(r => r.fragment.Id).Distinct().Count();
                 if (distinctFragmentIds < 2) continue;
 
-                foreach (var (fragment, culture, srcPath, speakerName, fragmentPath, lineText) in refs)
+                foreach (var (fragment, culture, srcPath, speakerName, fragmentPath, lineText, propName) in refs)
                 {
                     // Walk back to the fragment's ref to recover a valid asset proxy for navigation.
                     ObjectProxy asset = null;
@@ -211,7 +225,8 @@ namespace Kurisu.VoiceOverTools
                         Detail = $"shared with {distinctFragmentIds - 1} other fragment(s) — file: {fileName}",
                         SpeakerName = speakerName,
                         FragmentPath = fragmentPath,
-                        LineText = lineText
+                        LineText = lineText,
+                        PropertyName = propName
                     });
                 }
             }
@@ -296,6 +311,8 @@ namespace Kurisu.VoiceOverTools
                 FragmentPath = entry.FragmentPath ?? "",
                 LineText = entry.LineText ?? "",
                 Detail = entry.Detail ?? "",
+                PropertyName = entry.PropertyName ?? "",
+                PropertyLabel = string.IsNullOrEmpty(entry.PropertyName) ? "" : "." + entry.PropertyName,
                 HasAsset = entry.Asset != null,
                 CategoryKey = (int)entry.Category
             };

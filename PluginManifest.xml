@@ -2,7 +2,7 @@
 <PluginManifest Type="MacroPlugin" >
 	<Name>Kurisu.VoiceOverTools</Name>
 	<Title>Dialogue System Voice Over Helper</Title>
-	<Version>1.0.6</Version>
+	<Version>1.0.7</Version>
 	<MinimumArticyVersion>4.1</MinimumArticyVersion>
 	<Developer>Christos Nasioutzikis</Developer>
 	<Description>Voice-over asset helpers for dialogue projects. Rename VO files to a consistent {hexId}_{culture} scheme, clean up orphaned audio assets not referenced by any DialogueFragment, and strip non-primary translations + voice-over references in one pass. All commands include a dry-run preview.</Description>
@@ -22,6 +22,7 @@
     <![CDATA[V1.0.4- Added "Audit Voice-Overs" command (Global): scans every DialogueFragment and flags VO references that are missing for a language, corrupted (broken proxy / file missing on disk / 0-byte file), or overlapping (the same audio asset is shared by multiple distinct fragments). Read-only diagnostic with per-category filter toggles and click-to-navigate (Show Fragment / Show VO Asset).]]>
     <![CDATA[V1.0.5- Audit Voice-Overs filtering: hard-filter excludes fragments with no Speaker assigned (narration / stage directions don't get false-positive "Missing VO" entries). New per-character dropdown filter combines with the category toggles. Each row's header now includes the speaker name for at-a-glance scanning.]]>
     <![CDATA[V1.0.6- Audit row redesign for transparency. Each entry now shows the navigator path of the fragment, the actual dialogue line in the audited language, and the issue detail in a structured 4-line layout with proper visual hierarchy (category icon + label, speaker, id+lang, path, quoted line, detail). Full ComboBox / ComboBoxItem template overrides so the character-filter dropdown is properly themed (was unreadable in dark mode previously).]]>
+    <![CDATA[V1.0.7- Audit property + empty-line filtering. Each row now shows which text property the issue is for (.Text, .PreviewText, etc.) as a small monospaced badge in the header. New per-property toggle row dynamically built from the property names found in the audit (hidden when only one property type is present). New "Include empty lines" checkbox — hides rows whose dialogue text is blank by default (fragments not yet written), opt-in to include them.]]>
   </ReleaseNotes>
 	<Properties>
 		<!-- Is this plugin multi-user safe and properly checks claiming -->
