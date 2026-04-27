@@ -14,11 +14,14 @@ namespace Kurisu.VoiceOverTools
         {
             public string Icon { get; set; }
             public Brush IconBrush { get; set; }
-            public string Header { get; set; }
+            public string CategoryLabel { get; set; }
+            public string IdAndLang { get; set; }
+            public string SpeakerName { get; set; }
+            public string FragmentPath { get; set; }
+            public string LineText { get; set; }
             public string Detail { get; set; }
             public bool HasAsset { get; set; }
             public int CategoryKey { get; set; }
-            public string SpeakerName { get; set; }
         }
 
         private const string AllCharactersOption = "(all characters)";

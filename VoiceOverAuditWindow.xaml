@@ -150,36 +150,102 @@
                      SelectionChanged="AuditListBox_SelectionChanged">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="0,2,0,4">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                                <TextBlock Text="{Binding Icon}"
+                        <Grid Margin="2,4,2,4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- HEADER: [icon + Category badge] · Speaker · ID + Lang -->
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Icon}"
                                            Foreground="{Binding IconBrush}"
-                                           FontFamily="Consolas"
+                                           FontFamily="Segoe UI Symbol"
+                                           FontSize="15"
                                            FontWeight="Bold"
-                                           FontSize="13"
-                                           Width="22"/>
-                                <TextBlock Text="{Binding Header}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding CategoryLabel}"
+                                           Foreground="{Binding IconBrush}"
                                            FontFamily="Segoe UI"
                                            FontSize="12"
-                                           FontWeight="SemiBold"/>
-                            </StackPanel>
-                            <Grid Margin="26,0,0,0">
+                                           FontWeight="Bold"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,16,0"/>
+
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding SpeakerName}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           FontFamily="Segoe UI"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="3"
+                                           Text="{Binding IdAndLang}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontFamily="Consolas"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- PATH -->
+                            <TextBlock Grid.Row="1"
+                                       Text="{Binding FragmentPath}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       FontFamily="Consolas"
+                                       FontSize="11"
+                                       TextWrapping="Wrap"
+                                       Margin="26,4,0,0"/>
+
+                            <!-- LINE (the actual dialogue) -->
+                            <Border Grid.Row="2"
+                                    Background="{DynamicResource PanelBgBrush}"
+                                    BorderBrush="{DynamicResource BorderDarkBrush}"
+                                    BorderThickness="0,0,0,0"
+                                    Margin="26,4,0,0"
+                                    Padding="8,4">
+                                <TextBlock Text="{Binding LineText}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           FontFamily="Segoe UI"
+                                           FontSize="12"
+                                           FontStyle="Italic"
+                                           TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- DETAIL -->
+                            <Grid Grid.Row="3" Margin="26,4,0,0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="14"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"
-                                           Text="detail"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontFamily="Segoe UI"
-                                           FontSize="11"/>
+                                           Text="ⓘ"
+                                           Foreground="{Binding IconBrush}"
+                                           FontFamily="Segoe UI Symbol"
+                                           FontSize="11"
+                                           VerticalAlignment="Top"/>
                                 <TextBlock Grid.Column="1"
                                            Text="{Binding Detail}"
-                                           FontFamily="Consolas"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontFamily="Segoe UI"
                                            FontSize="11"
-                                           TextWrapping="Wrap"/>
+                                           TextWrapping="Wrap"
+                                           Margin="4,0,0,0"/>
                             </Grid>
-                        </StackPanel>
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
