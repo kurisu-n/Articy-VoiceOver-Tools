@@ -100,27 +100,43 @@
             </Grid>
         </Border>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,6">
-            <TextBlock Style="{DynamicResource HintTextStyle}"
-                       Text="Select a row, then jump to it in Articy:"
-                       VerticalAlignment="Center"
-                       Margin="0,0,10,0"/>
-            <Button x:Name="ShowFragmentButton"
-                    Content="Show Fragment"
-                    Width="140" Height="26"
-                    Margin="0,0,6,0"
-                    IsEnabled="False"
-                    Click="ShowFragmentButton_Click"/>
-            <Button x:Name="ShowAssetButton"
-                    Content="Show VO Asset"
-                    Width="140" Height="26"
-                    IsEnabled="False"
-                    Click="ShowAssetButton_Click"/>
-            <TextBlock Style="{DynamicResource HintTextStyle}"
-                       Text="(window stays open — Asset button is disabled for missing-VO entries)"
-                       VerticalAlignment="Center"
-                       Margin="10,0,0,0"/>
-        </StackPanel>
+        <Grid Grid.Row="2" Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Character:"
+                           VerticalAlignment="Center"
+                           Style="{DynamicResource HintTextStyle}"
+                           Margin="0,0,6,0"/>
+                <ComboBox x:Name="CharacterFilterComboBox"
+                          MinWidth="180"
+                          Height="26"
+                          VerticalContentAlignment="Center"
+                          SelectionChanged="CharacterFilterComboBox_SelectionChanged"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Style="{DynamicResource HintTextStyle}"
+                           Text="Select a row to jump:"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <Button x:Name="ShowFragmentButton"
+                        Content="Show Fragment"
+                        Width="140" Height="26"
+                        Margin="0,0,6,0"
+                        IsEnabled="False"
+                        Click="ShowFragmentButton_Click"/>
+                <Button x:Name="ShowAssetButton"
+                        Content="Show VO Asset"
+                        Width="140" Height="26"
+                        IsEnabled="False"
+                        Click="ShowAssetButton_Click"/>
+            </StackPanel>
+        </Grid>
 
         <Border Grid.Row="3"
                 BorderBrush="{DynamicResource BorderDarkBrush}"

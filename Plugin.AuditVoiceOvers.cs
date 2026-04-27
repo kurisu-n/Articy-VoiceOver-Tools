@@ -26,6 +26,7 @@ namespace Kurisu.VoiceOverTools
             public string LocalIdHex;
             public string SourcePath;
             public string Detail;
+            public string SpeakerName;    // for the by-character filter; "(no speaker)" if none (shouldn't normally occur post-hard-filter)
             public AuditCategory Category;
         }
 
@@ -40,7 +41,7 @@ namespace Kurisu.VoiceOverTools
                 return;
             }
 
-            var (entries, totalReferences) = BuildAudit(fragments);
+            var (entries, totalScanned, totalReferences) = BuildAudit(fragments);
 
             int missing     = entries.Count(e => e.Category == AuditCategory.Missing);
             int corrupted   = entries.Count(e => e.Category == AuditCategory.Corrupted);
@@ -48,9 +49,18 @@ namespace Kurisu.VoiceOverTools
 
             var rows = entries.Select(BuildAuditRow).ToList();
 
+            // Build the unique-speaker list (sorted alphabetically) for the character filter dropdown.
+            var speakers = entries
+                .Select(e => e.SpeakerName ?? "(no speaker)")
+                .Distinct()
+                .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
             var window = new VoiceOverAuditWindow();
+            var skipped = fragments.Count - totalScanned;
             var scopeSummary =
-                $"{fragments.Count} DialogueFragment(s) scanned  |  " +
+                $"{totalScanned} of {fragments.Count} DialogueFragment(s) scanned " +
+                $"({skipped} skipped: no Speaker assigned)  |  " +
                 $"{totalReferences} voice-over reference(s) checked  |  " +
                 $"{entries.Count} issue(s) found";
 
@@ -58,27 +68,38 @@ namespace Kurisu.VoiceOverTools
                 scopeSummary,
                 rows,
                 missing, corrupted, overlapping,
+                speakers,
                 onNavigateFragment: idx => NavigateToObject(entries[idx].Fragment),
                 onNavigateAsset:    idx => NavigateToObject(entries[idx].Asset));
 
             Session.ShowDialog(window);
         }
 
-        private (List<AuditEntry> entries, int totalReferences) BuildAudit(IReadOnlyList<ObjectProxy> fragments)
+        private (List<AuditEntry> entries, int totalScanned, int totalReferences) BuildAudit(IReadOnlyList<ObjectProxy> fragments)
         {
             var entries = new List<AuditEntry>();
             int totalReferences = 0;
+            int totalScanned = 0;
 
             var voLanguages = Session.GetVoiceOverLanguages();
-            if (voLanguages == null || voLanguages.Count == 0) return (entries, 0);
+            if (voLanguages == null || voLanguages.Count == 0) return (entries, 0, 0);
 
             // Pass 1: per-fragment, per-language scan for Missing + Corrupted.
             // Also build the asset-usage map for overlap detection in pass 2.
-            var assetUsage = new Dictionary<ulong, List<(ObjectProxy fragment, string culture, string srcPath)>>();
+            // Each entry tracked here also caches the speaker name so pass 2 doesn't re-resolve.
+            var assetUsage = new Dictionary<ulong, List<(ObjectProxy fragment, string culture, string srcPath, string speaker)>>();
 
             foreach (var fragment in fragments)
             {
                 if (fragment == null || fragment.ObjectType != ObjectType.DialogueFragment) continue;
+
+                // HARD FILTER: only audit fragments that have a Speaker assigned.
+                // Speaker-less fragments (narration, stage directions, internal monologue) are
+                // assumed not to need recorded VO and are excluded entirely from the audit.
+                var speakerName = TryGetSpeakerName(fragment);
+                if (speakerName == null) continue;
+
+                totalScanned++;
 
                 var localId = DecimalToHex(fragment.Id.ToString());
                 var properties = fragment.GetAvailableProperties();
@@ -109,7 +130,8 @@ namespace Kurisu.VoiceOverTools
                                 LanguageCode = culture,
                                 LocalIdHex = localId,
                                 Category = AuditCategory.Missing,
-                                Detail = "no VO asset assigned for this language"
+                                Detail = "no VO asset assigned for this language",
+                                SpeakerName = speakerName
                             });
                             continue;
                         }
@@ -126,15 +148,16 @@ namespace Kurisu.VoiceOverTools
                                 LocalIdHex = localId,
                                 SourcePath = srcPath,
                                 Category = AuditCategory.Corrupted,
-                                Detail = corruptionReason
+                                Detail = corruptionReason,
+                                SpeakerName = speakerName
                             });
                             continue;
                         }
 
                         // Healthy — track for overlap detection.
                         if (!assetUsage.TryGetValue(asset.Id, out var list))
-                            assetUsage[asset.Id] = list = new List<(ObjectProxy, string, string)>();
-                        list.Add((fragment, culture, srcPath));
+                            assetUsage[asset.Id] = list = new List<(ObjectProxy, string, string, string)>();
+                        list.Add((fragment, culture, srcPath, speakerName));
                     }
                 }
             }
@@ -146,12 +169,10 @@ namespace Kurisu.VoiceOverTools
                 var distinctFragmentIds = refs.Select(r => r.fragment.Id).Distinct().Count();
                 if (distinctFragmentIds < 2) continue;
 
-                foreach (var (fragment, culture, srcPath) in refs)
+                foreach (var (fragment, culture, srcPath, speakerName) in refs)
                 {
-                    // Re-look-up the asset from the first ref (any will do; same id).
+                    // Walk back to the fragment's ref to recover a valid asset proxy for navigation.
                     ObjectProxy asset = null;
-                    var anyRef = refs.FirstOrDefault();
-                    // Walk back to fragment's ref to get a valid proxy:
                     var properties = fragment.GetAvailableProperties();
                     if (properties != null)
                     {
@@ -178,12 +199,26 @@ namespace Kurisu.VoiceOverTools
                         LocalIdHex = DecimalToHex(fragment.Id.ToString()),
                         SourcePath = srcPath,
                         Category = AuditCategory.Overlapping,
-                        Detail = $"shared with {distinctFragmentIds - 1} other fragment(s) — file: {fileName}"
+                        Detail = $"shared with {distinctFragmentIds - 1} other fragment(s) — file: {fileName}",
+                        SpeakerName = speakerName
                     });
                 }
             }
 
-            return (entries, totalReferences);
+            return (entries, totalScanned, totalReferences);
+        }
+
+        /// <summary>
+        /// Returns the Speaker entity's display name for a DialogueFragment, or null if the fragment
+        /// has no Speaker assigned (or the Speaker proxy is invalid).
+        /// </summary>
+        private static string TryGetSpeakerName(ObjectProxy fragment)
+        {
+            if (!fragment.HasProperty(ObjectPropertyNames.Speaker)) return null;
+            var speaker = fragment[ObjectPropertyNames.Speaker] as ObjectProxy;
+            if (speaker == null || !speaker.IsValid) return null;
+            var name = speaker.GetDisplayName();
+            return string.IsNullOrEmpty(name) ? null : name;
         }
 
         private static string DetectCorruption(string srcPath)
@@ -221,7 +256,7 @@ namespace Kurisu.VoiceOverTools
                 default:                        icon = "?";      brush = Brushes.Gray;   categoryLabel = "Unknown";        break;
             }
 
-            var header = $"{entry.LocalIdHex}  [{entry.LanguageCode}]  —  {categoryLabel}";
+            var header = $"{entry.LocalIdHex}  [{entry.LanguageCode}]  —  {entry.SpeakerName}  —  {categoryLabel}";
 
             return new VoiceOverAuditWindow.Row
             {
@@ -230,7 +265,8 @@ namespace Kurisu.VoiceOverTools
                 Header = header,
                 Detail = entry.Detail ?? "",
                 HasAsset = entry.Asset != null,
-                CategoryKey = (int)entry.Category
+                CategoryKey = (int)entry.Category,
+                SpeakerName = entry.SpeakerName ?? "(no speaker)"
             };
         }
     }

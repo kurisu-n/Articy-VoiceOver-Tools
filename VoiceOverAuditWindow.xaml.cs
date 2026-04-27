@@ -18,13 +18,17 @@ namespace Kurisu.VoiceOverTools
             public string Detail { get; set; }
             public bool HasAsset { get; set; }
             public int CategoryKey { get; set; }
+            public string SpeakerName { get; set; }
         }
+
+        private const string AllCharactersOption = "(all characters)";
 
         private Action<int> _onNavigateFragment;
         private Action<int> _onNavigateAsset;
 
         private IReadOnlyList<Row> _allRows = new List<Row>();
         private readonly HashSet<int> _visibleCategories = new() { 0, 1, 2 };
+        private string _selectedSpeaker = AllCharactersOption;
         private int _totalCount;
 
         public VoiceOverAuditWindow()
@@ -44,6 +48,7 @@ namespace Kurisu.VoiceOverTools
             int missing,
             int corrupted,
             int overlapping,
+            IReadOnlyList<string> speakers,
             Action<int> onNavigateFragment,
             Action<int> onNavigateAsset)
         {
@@ -57,6 +62,13 @@ namespace Kurisu.VoiceOverTools
             MissingCount.Text = missing.ToString();
             CorruptedCount.Text = corrupted.ToString();
             OverlappingCount.Text = overlapping.ToString();
+
+            // Build the character filter list with "(all characters)" first.
+            var combo = new List<string> { AllCharactersOption };
+            combo.AddRange(speakers);
+            CharacterFilterComboBox.ItemsSource = combo;
+            CharacterFilterComboBox.SelectedIndex = 0;
+            _selectedSpeaker = AllCharactersOption;
 
             ApplyFilter();
         }
@@ -73,17 +85,27 @@ namespace Kurisu.VoiceOverTools
             ApplyFilter();
         }
 
+        private void CharacterFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CharacterFilterComboBox.SelectedItem is string s) _selectedSpeaker = s;
+            ApplyFilter();
+        }
+
         private void ApplyFilter()
         {
-            var filtered = _allRows.Where(r => _visibleCategories.Contains(r.CategoryKey)).ToList();
-            AuditListBox.ItemsSource = filtered;
+            IEnumerable<Row> filtered = _allRows.Where(r => _visibleCategories.Contains(r.CategoryKey));
+            if (_selectedSpeaker != AllCharactersOption)
+                filtered = filtered.Where(r => string.Equals(r.SpeakerName, _selectedSpeaker, StringComparison.Ordinal));
+
+            var list = filtered.ToList();
+            AuditListBox.ItemsSource = list;
 
             if (_totalCount == 0)
                 FilterStatusTextBlock.Text = "No issues found. All voice-over references are healthy.";
-            else if (filtered.Count == _totalCount)
-                FilterStatusTextBlock.Text = "Click a category to toggle it on/off.";
+            else if (list.Count == _totalCount)
+                FilterStatusTextBlock.Text = "Click a category to toggle, or pick a character to focus on one speaker.";
             else
-                FilterStatusTextBlock.Text = $"Showing {filtered.Count} of {_totalCount}.  Click a category to toggle.";
+                FilterStatusTextBlock.Text = $"Showing {list.Count} of {_totalCount}.  Click a category to toggle, or pick a character.";
         }
 
         private void AuditListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
