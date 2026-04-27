@@ -84,6 +84,13 @@ namespace Kurisu.VoiceOverTools
                 Execute      = CleanUpOrphanedAudioAssets
             };
 
+            var auditVoiceOvers = new MacroCommandDescriptor
+            {
+                CaptionLid   = "Audit Voice-Overs",
+                ModifiesData = false,
+                Execute      = AuditVoiceOvers
+            };
+
             switch ( aContext )
             {
                 case ContextMenuContext.Global:
@@ -91,6 +98,7 @@ namespace Kurisu.VoiceOverTools
                     //result.Add(selectMasterFlowObject);
                     result.Add(renameAllVoiceOvers);
                     result.Add(cleanUpOrphanedAudioAssets);
+                    result.Add(auditVoiceOvers);
                     return result;
 
                 default:

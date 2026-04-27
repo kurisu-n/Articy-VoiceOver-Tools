@@ -1,0 +1,181 @@
+<Window x:Class="Kurisu.VoiceOverTools.VoiceOverAuditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kurisu.VoiceOverTools"
+        mc:Ignorable="d"
+        Title="Voice-Over Audit"
+        Height="640" Width="900"
+        WindowStartupLocation="CenterOwner"
+        Style="{DynamicResource ArticyWindowStyle}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Kurisu.VoiceOverTools;component/Resources/ArticyTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="ScopeTextBlock"
+                   Grid.Row="0"
+                   Style="{DynamicResource HeaderTextStyle}"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,8"/>
+
+        <Border Grid.Row="1"
+                Background="{DynamicResource PanelBgBrush}"
+                BorderBrush="{DynamicResource BorderLightBrush}"
+                BorderThickness="1"
+                Padding="6"
+                Margin="0,0,0,8">
+            <Grid x:Name="SummaryGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <ToggleButton Grid.Row="0" Grid.Column="0"
+                              x:Name="MissingToggle"
+                              Style="{DynamicResource CategoryToggleStyle}"
+                              IsChecked="True" Tag="0"
+                              Click="CategoryFilter_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⌀" Foreground="{DynamicResource WarnBrush}" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Margin="0,0,6,0"/>
+                        <StackPanel>
+                            <TextBlock x:Name="MissingCount" Text="0" FontWeight="Bold"/>
+                            <TextBlock Text="Missing VO" Style="{DynamicResource HintTextStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ToggleButton>
+
+                <ToggleButton Grid.Row="0" Grid.Column="1"
+                              x:Name="CorruptedToggle"
+                              Style="{DynamicResource CategoryToggleStyle}"
+                              IsChecked="True" Tag="1"
+                              Click="CategoryFilter_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✗" Foreground="{DynamicResource DangerBrush}" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Margin="0,0,6,0"/>
+                        <StackPanel>
+                            <TextBlock x:Name="CorruptedCount" Text="0" FontWeight="Bold"/>
+                            <TextBlock Text="Corrupted VO" Style="{DynamicResource HintTextStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ToggleButton>
+
+                <ToggleButton Grid.Row="0" Grid.Column="2"
+                              x:Name="OverlappingToggle"
+                              Style="{DynamicResource CategoryToggleStyle}"
+                              IsChecked="True" Tag="2"
+                              Click="CategoryFilter_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⇄" Foreground="{DynamicResource AccentBrush}" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Margin="0,0,6,0"/>
+                        <StackPanel>
+                            <TextBlock x:Name="OverlappingCount" Text="0" FontWeight="Bold"/>
+                            <TextBlock Text="Overlapping VO" Style="{DynamicResource HintTextStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ToggleButton>
+
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="3"
+                           x:Name="FilterStatusTextBlock"
+                           Style="{DynamicResource HintTextStyle}"
+                           Text="Click a category to toggle it on/off."
+                           Margin="2,4,0,0"/>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,6">
+            <TextBlock Style="{DynamicResource HintTextStyle}"
+                       Text="Select a row, then jump to it in Articy:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            <Button x:Name="ShowFragmentButton"
+                    Content="Show Fragment"
+                    Width="140" Height="26"
+                    Margin="0,0,6,0"
+                    IsEnabled="False"
+                    Click="ShowFragmentButton_Click"/>
+            <Button x:Name="ShowAssetButton"
+                    Content="Show VO Asset"
+                    Width="140" Height="26"
+                    IsEnabled="False"
+                    Click="ShowAssetButton_Click"/>
+            <TextBlock Style="{DynamicResource HintTextStyle}"
+                       Text="(window stays open — Asset button is disabled for missing-VO entries)"
+                       VerticalAlignment="Center"
+                       Margin="10,0,0,0"/>
+        </StackPanel>
+
+        <Border Grid.Row="3"
+                BorderBrush="{DynamicResource BorderDarkBrush}"
+                BorderThickness="1"
+                Background="{DynamicResource DarkBgBrush}">
+            <ListBox x:Name="AuditListBox"
+                     BorderThickness="0"
+                     HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     SelectionChanged="AuditListBox_SelectionChanged">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,2,0,4">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                <TextBlock Text="{Binding Icon}"
+                                           Foreground="{Binding IconBrush}"
+                                           FontFamily="Consolas"
+                                           FontWeight="Bold"
+                                           FontSize="13"
+                                           Width="22"/>
+                                <TextBlock Text="{Binding Header}"
+                                           FontFamily="Segoe UI"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <Grid Margin="26,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="detail"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontFamily="Segoe UI"
+                                           FontSize="11"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Detail}"
+                                           FontFamily="Consolas"
+                                           FontSize="11"
+                                           TextWrapping="Wrap"/>
+                            </Grid>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button x:Name="CloseButton"
+                    Content="Close"
+                    Width="100" Height="30"
+                    Click="CloseButton_Click"
+                    IsCancel="True"
+                    IsDefault="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

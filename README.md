@@ -14,6 +14,16 @@ Scans DialogueFragments and proposes per-asset renames so each VO file follows a
 - Click any row and then **Show Fragment** or **Show VO Asset** to jump to it in Articy's main view (window stays open)
 - Choose **Dry run** to preview only, or **Execute rename** to apply
 
+### Audit Voice-Overs
+
+Read-only diagnostic that scans every DialogueFragment and flags VO issues:
+
+- **Missing**: a text property has voice-over enabled but no asset assigned for one or more languages
+- **Corrupted**: the assigned asset is broken — invalid proxy, missing `AbsoluteFilePath`, file missing on disk, or 0-byte file
+- **Overlapping**: a single audio asset is referenced by multiple distinct fragments (sometimes intentional, sometimes a bug — the audit just surfaces it)
+
+Same window pattern as the others — category filter toggles, click-to-navigate (**Show Fragment** / **Show VO Asset**).
+
 ### Clean Up Orphaned Voice-Overs
 
 Finds audio assets that no DialogueFragment references via its `VoiceOverReferences` and offers three actions:
@@ -30,7 +40,7 @@ Right-click a selection (a Flow, Dialogue, or DialogueFragment) and strip all no
 
 1. Download the latest `.mdk` from the [`releases/`](./releases) folder.
 2. Install it via Articy:draft X's **Package Manager** (the standard plugin install path for the app — see Articy's [Packaging a plugin](https://www.articy.com/adxdevkit/html/packaging_a_plugin.htm) docs).
-3. Commands appear in the ribbon (global scope, e.g. "Rename All Voice-Overs", "Clean Up Orphaned Voice-Overs") and in right-click context menus for selections (e.g. "Rename Selected Voice-Overs", "Remove Translations and Voice-Overs").
+3. Commands appear in the ribbon (global scope, e.g. "Rename All Voice-Overs", "Clean Up Orphaned Voice-Overs", "Audit Voice-Overs") and in right-click context menus for selections (e.g. "Rename Selected Voice-Overs", "Remove Translations and Voice-Overs").
 
 ## Build from source
 
