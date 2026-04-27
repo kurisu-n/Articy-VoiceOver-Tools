@@ -191,18 +191,20 @@ namespace Kurisu.VoiceOverTools
         {
             var menu = new ContextMenu();
 
-            // ContextMenu is a logical-tree island — implicit styles defined in the Window's
-            // Resources don't propagate into it automatically, which causes default-Aero
-            // MenuItem rendering (white-on-light icon column gutter on the left). Merge the
-            // theme dictionaries into the ContextMenu's own resources so the implicit styles
-            // resolve.
+            // ContextMenu is a logical-tree island — implicit Style propagation is unreliable
+            // through the Popup boundary, so we (a) merge the theme dictionaries into the
+            // ContextMenu's own Resources and (b) assign Template explicitly on the menu and
+            // every MenuItem we build below. Belt + suspenders.
             foreach (var dict in this.Resources.MergedDictionaries)
                 menu.Resources.MergedDictionaries.Add(dict);
+            ApplyThemedTemplate(menu);
 
             // "(all paths)" reset entry
-            var allItem = new MenuItem { Header = AllPathsOption, Style = ThemedMenuItemStyle };
+            var allItem = new MenuItem { Header = AllPathsOption };
+            ApplyThemedTemplate(allItem);
             allItem.Click += (s, e) => { SelectPath(AllPathsOption); e.Handled = true; };
             menu.Items.Add(allItem);
+
             var sep = new Separator();
             if (ThemedSeparatorStyle != null) sep.Style = ThemedSeparatorStyle;
             menu.Items.Add(sep);
@@ -238,10 +240,34 @@ namespace Kurisu.VoiceOverTools
             PathDropdownButton.ContextMenu = menu;
         }
 
-        // Cached style references — resolved once and applied explicitly to every MenuItem
-        // we create in code, in case the implicit-style lookup misses through the popup boundary.
-        private Style ThemedMenuItemStyle => TryFindResource(typeof(MenuItem)) as Style;
+        // Cached style + template references — applied explicitly to every MenuItem and the
+        // ContextMenu so the dark theme is forced even when implicit-Style lookup fails through
+        // the popup boundary.
         private Style ThemedSeparatorStyle => TryFindResource(typeof(Separator)) as Style;
+
+        private void ApplyThemedTemplate(ContextMenu menu)
+        {
+            // Set theme brushes on the menu so the template's TemplateBindings resolve correctly.
+            menu.Background = (System.Windows.Media.Brush)FindResource("DarkBgBrush");
+            menu.Foreground = (System.Windows.Media.Brush)FindResource("TextPrimaryBrush");
+            menu.BorderBrush = (System.Windows.Media.Brush)FindResource("BorderDarkBrush");
+            menu.BorderThickness = new Thickness(1);
+            menu.HasDropShadow = false;
+
+            var tpl = TryFindResource("ThemedContextMenuControlTemplate") as ControlTemplate;
+            if (tpl != null) menu.Template = tpl;
+        }
+
+        private void ApplyThemedTemplate(MenuItem item)
+        {
+            item.Background = System.Windows.Media.Brushes.Transparent;
+            item.Foreground = (System.Windows.Media.Brush)FindResource("TextPrimaryBrush");
+            item.BorderBrush = System.Windows.Media.Brushes.Transparent;
+            item.Padding = new Thickness(10, 5, 10, 5);
+
+            var tpl = TryFindResource("ThemedMenuItemControlTemplate") as ControlTemplate;
+            if (tpl != null) item.Template = tpl;
+        }
 
         private static void SortTree(PathNode node)
         {
@@ -256,15 +282,13 @@ namespace Kurisu.VoiceOverTools
         /// </summary>
         private MenuItem BuildMenuItem(PathNode node)
         {
-            var item = new MenuItem { Header = node.Segment, Style = ThemedMenuItemStyle };
+            var item = new MenuItem { Header = node.Segment };
+            ApplyThemedTemplate(item);
 
             if (node.Children.Count > 0)
             {
-                var selfItem = new MenuItem
-                {
-                    Header = "↩ " + node.Segment + " (this folder)",
-                    Style = ThemedMenuItemStyle
-                };
+                var selfItem = new MenuItem { Header = "↩ " + node.Segment + " (this folder)" };
+                ApplyThemedTemplate(selfItem);
                 selfItem.Click += (s, e) => { SelectPath(node.FullPath); e.Handled = true; };
                 item.Items.Add(selfItem);
 

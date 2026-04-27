@@ -388,7 +388,24 @@
         </Setter>
     </Style>
 
-    <!-- ContextMenu + MenuItem styling so the hierarchical path picker matches the dark theme. -->
+    <!-- ContextMenu + MenuItem theming. The templates are extracted as keyed resources so we
+         can also assign them directly in code (via Template = (ControlTemplate)FindResource(...)).
+         Implicit Style propagation through ContextMenu's logical-tree island is unreliable in
+         WPF, so explicit Template assignment is the only way to guarantee the dark theme inside
+         the dropdown. -->
+
+    <ControlTemplate x:Key="ThemedContextMenuControlTemplate" TargetType="{x:Type ContextMenu}">
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                SnapsToDevicePixels="True">
+            <ScrollViewer>
+                <ItemsPresenter SnapsToDevicePixels="True"
+                                KeyboardNavigation.DirectionalNavigation="Cycle"/>
+            </ScrollViewer>
+        </Border>
+    </ControlTemplate>
+
     <Style TargetType="{x:Type ContextMenu}">
         <Setter Property="Background" Value="{StaticResource DarkBgBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
@@ -397,7 +414,65 @@
         <Setter Property="FontFamily" Value="Segoe UI"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="Template" Value="{StaticResource ThemedContextMenuControlTemplate}"/>
     </Style>
+
+    <ControlTemplate x:Key="ThemedMenuItemControlTemplate" TargetType="{x:Type MenuItem}">
+        <Grid>
+            <Border x:Name="Border"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="0"
+                    Padding="{TemplateBinding Padding}"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter Grid.Column="0"
+                                      ContentSource="Header"
+                                      VerticalAlignment="Center"
+                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    <Path x:Name="SubArrow"
+                          Grid.Column="1"
+                          Data="M 0 0 L 4 4 L 0 8 Z"
+                          Fill="{StaticResource TextSecondaryBrush}"
+                          VerticalAlignment="Center"
+                          Margin="12,0,0,0"
+                          Visibility="Collapsed"/>
+                </Grid>
+            </Border>
+            <Popup x:Name="Popup"
+                   Placement="Right"
+                   IsOpen="{TemplateBinding IsSubmenuOpen}"
+                   AllowsTransparency="True"
+                   Focusable="False"
+                   PopupAnimation="Fade">
+                <Border Background="{StaticResource DarkBgBrush}"
+                        BorderBrush="{StaticResource BorderDarkBrush}"
+                        BorderThickness="1"
+                        SnapsToDevicePixels="True">
+                    <ScrollViewer Background="{StaticResource DarkBgBrush}">
+                        <StackPanel IsItemsHost="True"
+                                    Background="{StaticResource DarkBgBrush}"
+                                    KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="HasItems" Value="True">
+                <Setter TargetName="SubArrow" Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="{StaticResource ButtonBgBrush}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
 
     <Style TargetType="{x:Type MenuItem}">
         <Setter Property="Background" Value="Transparent"/>
@@ -407,66 +482,81 @@
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Padding" Value="10,5"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type MenuItem}">
-                    <Grid>
-                        <Border x:Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="0"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <ContentPresenter Grid.Column="0"
-                                                  ContentSource="Header"
-                                                  VerticalAlignment="Center"
-                                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
-                                <Path x:Name="SubArrow"
-                                      Grid.Column="1"
-                                      Data="M 0 0 L 4 4 L 0 8 Z"
-                                      Fill="{StaticResource TextSecondaryBrush}"
-                                      VerticalAlignment="Center"
-                                      Margin="12,0,0,0"
-                                      Visibility="Collapsed"/>
-                            </Grid>
-                        </Border>
-                        <Popup x:Name="Popup"
-                               Placement="Right"
-                               IsOpen="{TemplateBinding IsSubmenuOpen}"
-                               AllowsTransparency="True"
-                               Focusable="False"
-                               PopupAnimation="Fade">
-                            <Border Background="{StaticResource DarkBgBrush}"
-                                    BorderBrush="{StaticResource BorderDarkBrush}"
-                                    BorderThickness="1"
-                                    SnapsToDevicePixels="True">
-                                <ScrollViewer>
-                                    <StackPanel IsItemsHost="True"
-                                                KeyboardNavigation.DirectionalNavigation="Cycle"/>
-                                </ScrollViewer>
-                            </Border>
-                        </Popup>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="HasItems" Value="True">
-                            <Setter TargetName="SubArrow" Property="Visibility" Value="Visible"/>
-                        </Trigger>
-                        <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Border" Property="Background" Value="{StaticResource ButtonBgBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Template" Value="{StaticResource ThemedMenuItemControlTemplate}"/>
     </Style>
+
+    <!-- Aero looks up its role-specific MenuItem templates via these ComponentResourceKeys.
+         Override them with our themed template so Aero never falls back to its own (which
+         renders the icon-column gutter that shows up as a white stripe on dark windows). -->
+    <ControlTemplate x:Key="{ComponentResourceKey TypeInTargetAssembly={x:Type FrameworkElement}, ResourceId=SubmenuItemTemplateKey}"
+                     TargetType="{x:Type MenuItem}">
+        <Grid>
+            <Border x:Name="Border"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="0"
+                    Padding="10,5"
+                    SnapsToDevicePixels="True">
+                <ContentPresenter ContentSource="Header"
+                                  VerticalAlignment="Center"
+                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
+            </Border>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="{StaticResource ButtonBgBrush}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="{ComponentResourceKey TypeInTargetAssembly={x:Type FrameworkElement}, ResourceId=SubmenuHeaderTemplateKey}"
+                     TargetType="{x:Type MenuItem}">
+        <Grid>
+            <Border x:Name="Border"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="0"
+                    Padding="10,5"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter Grid.Column="0"
+                                      ContentSource="Header"
+                                      VerticalAlignment="Center"
+                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    <Path Grid.Column="1"
+                          Data="M 0 0 L 4 4 L 0 8 Z"
+                          Fill="{StaticResource TextSecondaryBrush}"
+                          VerticalAlignment="Center"
+                          Margin="12,0,0,0"/>
+                </Grid>
+            </Border>
+            <Popup Placement="Right"
+                   IsOpen="{TemplateBinding IsSubmenuOpen}"
+                   AllowsTransparency="True"
+                   Focusable="False"
+                   PopupAnimation="Fade">
+                <Border Background="{StaticResource DarkBgBrush}"
+                        BorderBrush="{StaticResource BorderDarkBrush}"
+                        BorderThickness="1"
+                        SnapsToDevicePixels="True">
+                    <ScrollViewer Background="{StaticResource DarkBgBrush}">
+                        <StackPanel IsItemsHost="True"
+                                    Background="{StaticResource DarkBgBrush}"
+                                    KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsHighlighted" Value="True">
+                <Setter TargetName="Border" Property="Background" Value="{StaticResource ButtonBgBrush}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
 
     <Style TargetType="{x:Type Separator}">
         <Setter Property="Background" Value="{StaticResource BorderDarkBrush}"/>

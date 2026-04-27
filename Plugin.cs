@@ -34,27 +34,35 @@ namespace Kurisu.VoiceOverTools
 			get { return LocalizeStringNoFormat(Texts.Plugin.ContextName); }
 		}
 
+		// Articy's command-bar / context-menu reads CaptionLid for display text. Many plugin
+		// frameworks (and Articy by convention) treat "/" inside a caption as a submenu
+		// separator — prefixing every command with "Kurisu/" groups them under a single
+		// Kurisu submenu in the ribbon and the right-click menu. If a future Articy version
+		// renders the slash literally instead of as a separator, change this prefix to a
+		// no-op.
+		private const string MenuPrefix = "Kurisu/";
+
 		public override List<MacroCommandDescriptor> GetMenuEntries(List<ObjectProxy> aSelectedObjects, ContextMenuContext aContext )
 		{
 			var result = new List<MacroCommandDescriptor>();
 
             var selectMasterFlowObject = new MacroCommandDescriptor
             {
-                CaptionLid = "Select Flow Object",
+                CaptionLid = MenuPrefix + "Select Flow Object",
                 ModifiesData = true,
                 Execute = SelectFlowObject
             };
 
             var renameAllVoiceOvers = new MacroCommandDescriptor
             {
-                CaptionLid = "Rename All Voice-Overs",
+                CaptionLid = MenuPrefix + "Rename All Voice-Overs",
                 ModifiesData = true,
                 Execute = RenameAllVoiceOvers
             };
 
             var renameSelectedVoiceOvers = new MacroCommandDescriptor
             {
-                CaptionLid = "Rename Selected Voice-Overs",
+                CaptionLid = MenuPrefix + "Rename Selected Voice-Overs",
                 ModifiesData = true,
                 Execute = RenameSelectedVoiceOver,
                 UserData = aSelectedObjects
@@ -62,7 +70,7 @@ namespace Kurisu.VoiceOverTools
 
             var displaySelectedProperties = new MacroCommandDescriptor
             {
-                CaptionLid = "Display Selected Properties",
+                CaptionLid = MenuPrefix + "Display Selected Properties",
                 ModifiesData = true,
                 Execute = DisplaySelectedObjectProperties,
                 UserData = aSelectedObjects
@@ -71,7 +79,7 @@ namespace Kurisu.VoiceOverTools
 
             var removeTranslationsAndVoiceOvers = new MacroCommandDescriptor
             {
-                CaptionLid  = "Remove Translations and Voice-Overs",
+                CaptionLid  = MenuPrefix + "Remove Translations and Voice-Overs",
                 ModifiesData = true,
                 Execute      = RemoveTranslationsAndVoiceOvers,
                 UserData     = aSelectedObjects      // keeps current selection
@@ -79,14 +87,14 @@ namespace Kurisu.VoiceOverTools
 
             var cleanUpOrphanedAudioAssets = new MacroCommandDescriptor
             {
-                CaptionLid   = "Clean Up Orphaned Voice-Overs",
+                CaptionLid   = MenuPrefix + "Clean Up Orphaned Voice-Overs",
                 ModifiesData = true,
                 Execute      = CleanUpOrphanedAudioAssets
             };
 
             var auditVoiceOvers = new MacroCommandDescriptor
             {
-                CaptionLid   = "Audit Voice-Overs",
+                CaptionLid   = MenuPrefix + "Audit Voice-Overs",
                 ModifiesData = false,
                 Execute      = AuditVoiceOvers
             };
