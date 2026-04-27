@@ -191,11 +191,21 @@ namespace Kurisu.VoiceOverTools
         {
             var menu = new ContextMenu();
 
+            // ContextMenu is a logical-tree island — implicit styles defined in the Window's
+            // Resources don't propagate into it automatically, which causes default-Aero
+            // MenuItem rendering (white-on-light icon column gutter on the left). Merge the
+            // theme dictionaries into the ContextMenu's own resources so the implicit styles
+            // resolve.
+            foreach (var dict in this.Resources.MergedDictionaries)
+                menu.Resources.MergedDictionaries.Add(dict);
+
             // "(all paths)" reset entry
-            var allItem = new MenuItem { Header = AllPathsOption };
+            var allItem = new MenuItem { Header = AllPathsOption, Style = ThemedMenuItemStyle };
             allItem.Click += (s, e) => { SelectPath(AllPathsOption); e.Handled = true; };
             menu.Items.Add(allItem);
-            menu.Items.Add(new Separator());
+            var sep = new Separator();
+            if (ThemedSeparatorStyle != null) sep.Style = ThemedSeparatorStyle;
+            menu.Items.Add(sep);
 
             // Build the tree from the flat prefix list, then realize it as nested MenuItems.
             var root = new PathNode();
@@ -228,6 +238,11 @@ namespace Kurisu.VoiceOverTools
             PathDropdownButton.ContextMenu = menu;
         }
 
+        // Cached style references — resolved once and applied explicitly to every MenuItem
+        // we create in code, in case the implicit-style lookup misses through the popup boundary.
+        private Style ThemedMenuItemStyle => TryFindResource(typeof(MenuItem)) as Style;
+        private Style ThemedSeparatorStyle => TryFindResource(typeof(Separator)) as Style;
+
         private static void SortTree(PathNode node)
         {
             node.Children.Sort((a, b) => StringComparer.Ordinal.Compare(a.Segment, b.Segment));
@@ -241,14 +256,21 @@ namespace Kurisu.VoiceOverTools
         /// </summary>
         private MenuItem BuildMenuItem(PathNode node)
         {
-            var item = new MenuItem { Header = node.Segment };
+            var item = new MenuItem { Header = node.Segment, Style = ThemedMenuItemStyle };
 
             if (node.Children.Count > 0)
             {
-                var selfItem = new MenuItem { Header = "↩ " + node.Segment + " (this folder)" };
+                var selfItem = new MenuItem
+                {
+                    Header = "↩ " + node.Segment + " (this folder)",
+                    Style = ThemedMenuItemStyle
+                };
                 selfItem.Click += (s, e) => { SelectPath(node.FullPath); e.Handled = true; };
                 item.Items.Add(selfItem);
-                item.Items.Add(new Separator());
+
+                var sep = new Separator();
+                if (ThemedSeparatorStyle != null) sep.Style = ThemedSeparatorStyle;
+                item.Items.Add(sep);
 
                 foreach (var child in node.Children)
                     item.Items.Add(BuildMenuItem(child));
