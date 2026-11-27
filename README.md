@@ -4,6 +4,30 @@ An Articy:draft X macro plugin for managing voice-over asset naming, cleanup, an
 
 ## Features
 
+### Export / Import Voice-Overs
+
+Takes the voice-over files under one object out of the project and brings edited ones back. Open it from the ribbon, or right-click an object to pre-pick it; **Pick...** opens articy's own object picker. Both modes share the object, a folder, the languages and a *main language*.
+
+- **Export** copies every voice-over under the object to the folder, after a preview:
+  - the main language's files lose their `_language` suffix (`0x…1B4D_el(1C49).mp3` → `0x…1B4D(1C49).mp3`); names without a suffix are left alone
+  - keep or strip the `(XXXX)` tag articy appends to stored files
+  - optional subfolders: one top folder per language, 0-6 hierarchy levels below the object, and a speaker folder before or after the hierarchy (`(no speaker)` when unset)
+  - existing files are skipped or overwritten; a voice-over shared by several fragments is written once, and two different files landing on one name are reported and neither is written
+- **Import** searches a folder and its subfolders and replaces the voice-overs whose stored names match: exactly when the file keeps its `(XXXX)` tag, ignoring the tag when it does not, and with or without the main language's suffix. A file matching several voice-overs, several files matching one, and a different file format are listed as **conflicts**: each offers a choice and stays skipped until you pick. Files identical to the stored one are skipped, and a voice-over shared by several fragments is flagged because replacing it changes all of them. Replaced assets keep their display name, description and external id.
+
+### Match Language Voice-Overs
+
+Binds a new language's audio, already imported into articy, to the right fragments by name. Pick where the voice-overs are (right-click a dialogue to pre-pick it), the asset folder holding the new audio (right-click it to pre-pick it; subfolders optional) and the target language, then preview.
+
+- A slot answers to the names of the voice-overs it already has in other languages, with the `(XXXX)` tag and a trailing `_language` ignored. So `name_el`, `name_en` and `name` all match, `_de` counts for `de-DE`, and suffixes that are not project languages (`_SC`, `_final`) stay part of the name.
+- Among assets sharing a name, one named for the target language wins, then one without a language suffix. One named for another language is never used.
+- Two equally good assets, or a slot that already has a different target voice-over, are **conflicts**: they stay as they are until you pick in the row. A slot already bound to the matching asset shows as unchanged. Assets that match nothing are listed with the reason.
+- Every binding is read back after it is set.
+
+### Tests
+
+`Tests/` is an articy-free console test suite for the naming and matching rules (`dotnet run -c Release` inside it). It includes synthetic projects harder than real ones and was checked against deliberately broken versions of the rules.
+
 ### Rename Voice-Overs (All / Selected)
 
 Scans DialogueFragments and proposes per-asset renames so each VO file follows a `{hexId}_{culture}` convention. A preview window shows the plan:
@@ -60,7 +84,7 @@ Right-click a selection (a Flow, Dialogue, or DialogueFragment) and strip all no
 
 1. Download the latest `.mdk` from the [`releases/`](./releases) folder.
 2. Install it via Articy:draft X's **Package Manager** (the standard plugin install path for the app — see Articy's [Packaging a plugin](https://www.articy.com/adxdevkit/html/packaging_a_plugin.htm) docs).
-3. Commands appear in the ribbon (global scope, e.g. "Rename All Voice-Overs", "Clean Up Orphaned Voice-Overs", "Audit Voice-Overs", "Find Duplicate Translations", "Find Multi-bound Voice-Overs") and in right-click context menus for selections (e.g. "Rename Selected Voice-Overs", "Remove Translations and Voice-Overs").
+3. Commands appear under **Firecrest Roost: Voice-Over Tools** in the ribbon (global scope, e.g. "Rename All Voice-Overs", "Clean Up Orphaned Voice-Overs", "Audit Voice-Overs", "Find Duplicate Translations", "Find Multi-bound Voice-Overs") and under the same submenu in right-click context menus for selections (e.g. "Rename Selected Voice-Overs", "Remove Translations and Voice-Overs").
 
 ## Build from source
 

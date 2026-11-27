@@ -10,13 +10,26 @@
     <AppendTargetFrameworkToIntermediateOutputPath>false</AppendTargetFrameworkToIntermediateOutputPath>
 
     <Configurations>Debug;Release</Configurations>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- false: Articy.MDK 2.4.1 pulls System.Drawing.Common and friends in transitively; articy ships its own
+         copies, so the plugin must not carry second ones into its process. -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <UseWPF>true</UseWPF>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+
+    <!-- Keep in step with PluginManifest.xml: articy reuses an already-loaded assembly with the same
+         identity, so an update installed without a restart can keep running the old code. -->
+    <Version>1.1.7</Version>
   </PropertyGroup>
 
+  <!-- The articy-free tests live in Tests/ as their own project; keep them out of the plugin. -->
   <ItemGroup>
-    <PackageReference Include="Articy.MDK" Version="2.0.0" />
+    <Compile Remove="Tests/**" />
+    <None Remove="Tests/**" />
+    <Page Remove="Tests/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Articy.MDK" Version="2.4.1" />
   </ItemGroup>
 
   <ItemGroup>

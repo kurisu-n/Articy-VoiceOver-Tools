@@ -35,11 +35,12 @@ namespace Kurisu.VoiceOverTools
 		}
 
 		// Articy uses BACKSLASH ('\') as the submenu separator inside CaptionLid — see
-		// https://www.articy.com/adxdevkit/html/writing_a_plugin.htm. Prefixing every command
-		// with "Kurisu\" groups them under a single Kurisu submenu in the ribbon and the
-		// right-click menu. (Forward slash is rendered literally by Articy, which is why an
-		// earlier attempt with "Kurisu/" produced a flat command name.)
-		private const string MenuPrefix = "Kurisu\\";
+		// https://www.articy.com/adxdevkit/html/writing_a_plugin.htm. (Forward slash is rendered
+		// literally, which is why an earlier "Kurisu/" attempt produced a flat command name.)
+		// Articy builds each plugin's submenus separately and never merges them across plugins, so
+		// a shared root like "Kurisu\" appeared once per plugin. Each Firecrest Roost plugin's top
+		// line therefore names the studio and the plugin (Chris, 2026-11-23).
+		private const string MenuPrefix = "Firecrest Roost: Voice-Over Tools\\";
 
 		public override List<MacroCommandDescriptor> GetMenuEntries(List<ObjectProxy> aSelectedObjects, ContextMenuContext aContext )
 		{
@@ -112,11 +113,42 @@ namespace Kurisu.VoiceOverTools
                 Execute      = FindMultiBoundVoiceOvers
             };
 
+            // Opened from the ribbon it pre-picks whatever selection articy passes (if any); from the
+            // right-click menu it pre-picks the clicked object.
+            var exportImportVoiceOvers = new MacroCommandDescriptor
+            {
+                CaptionLid   = MenuPrefix + "Export / Import Voice-Overs...",
+                ModifiesData = true,
+                Execute      = OpenVoiceOverTransfer,
+                UserData     = aSelectedObjects
+            };
+
+            // Replaces one voice-over and restores it, so it asks for confirmation and is meant for copies.
+            var selfTestVoiceOverTransfer = new MacroCommandDescriptor
+            {
+                CaptionLid   = MenuPrefix + "Self-Test Export / Import (copies only)",
+                ModifiesData = true,
+                Execute      = RunVoiceOverSelfTest,
+                UserData     = aSelectedObjects
+            };
+
+            // Right-clicking a dialogue pre-picks it as the scope; right-clicking an asset folder pre-picks it as the source.
+            var matchLanguageVoiceOvers = new MacroCommandDescriptor
+            {
+                CaptionLid   = MenuPrefix + "Match Language Voice-Overs...",
+                ModifiesData = true,
+                Execute      = OpenLanguageMatch,
+                UserData     = aSelectedObjects
+            };
+
             switch ( aContext )
             {
                 case ContextMenuContext.Global:
                     // entries for the "global" commands of the ribbon menu are requested
                     //result.Add(selectMasterFlowObject);
+                    result.Add(exportImportVoiceOvers);
+                    result.Add(matchLanguageVoiceOvers);
+                    result.Add(selfTestVoiceOverTransfer);
                     result.Add(renameAllVoiceOvers);
                     result.Add(cleanUpOrphanedAudioAssets);
                     result.Add(auditVoiceOvers);
@@ -129,6 +161,8 @@ namespace Kurisu.VoiceOverTools
                     if ( aSelectedObjects.Count >= 1)
                     {
                         //result.Add(displaySelectedProperties);
+                        result.Add(exportImportVoiceOvers);
+                        result.Add(matchLanguageVoiceOvers);
                         result.Add(renameSelectedVoiceOvers);
                         result.Add(removeTranslationsAndVoiceOvers);
                         return result;

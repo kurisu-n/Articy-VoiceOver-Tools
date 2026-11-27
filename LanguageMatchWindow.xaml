@@ -1,0 +1,106 @@
+<Window x:Class="Kurisu.VoiceOverTools.LanguageMatchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Match Language Voice-Overs"
+        Height="700" Width="960"
+        WindowStartupLocation="CenterOwner"
+        Style="{DynamicResource ArticyWindowStyle}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Kurisu.VoiceOverTools;component/Resources/ArticyTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Style="{DynamicResource HintTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8"
+                   Text="Binds audio assets already imported into articy to the voice-over slots whose existing voice-overs in other languages have the same name: name_el, name_en and name all match. Among assets with that name, one named for the target language wins, then one without a language; one named for another language is never used."/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Voice-overs under" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <TextBlock x:Name="RootTextBlock" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            <Button Grid.Row="0" Grid.Column="2" Content="Pick..." Width="90" Height="26" Margin="0,2" Click="PickRootButton_Click"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="New assets in" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <TextBlock x:Name="FolderTextBlock" Grid.Row="1" Grid.Column="1" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            <Button Grid.Row="1" Grid.Column="2" Content="Pick..." Width="90" Height="26" Margin="0,2" Click="PickFolderButton_Click"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Target language" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,2">
+                <ComboBox x:Name="LanguageComboBox" Width="200" SelectionChanged="Option_Changed"/>
+                <CheckBox x:Name="SubfoldersCheckBox" Content="Include subfolders" IsChecked="True" VerticalAlignment="Center" Margin="16,0,0,0" Click="Option_Changed"/>
+            </StackPanel>
+
+            <Button Grid.Row="3" Grid.Column="1" Content="Preview" Width="120" Height="28" HorizontalAlignment="Left" Margin="0,8,0,0" Click="PreviewButton_Click"/>
+        </Grid>
+
+        <TextBlock x:Name="SummaryTextBlock" Grid.Row="2" Style="{DynamicResource HeaderTextStyle}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+        <Border Grid.Row="3" BorderBrush="{DynamicResource BorderDarkBrush}" BorderThickness="1" Background="{DynamicResource DarkBgBrush}">
+            <ListBox x:Name="RowsListBox"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     HorizontalContentAlignment="Stretch"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="4,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0" VerticalAlignment="Top" Margin="0,2,8,0"
+                                      IsChecked="{Binding Selected, Mode=TwoWay}" IsEnabled="{Binding Selectable}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding StatusText}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Top"/>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap"/>
+                                <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding Choice, Mode=TwoWay}"
+                                          Visibility="{Binding HasChoices, Converter={StaticResource BoolToVisibility}}"
+                                          HorizontalAlignment="Left" MinWidth="320" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <Grid Grid.Row="4" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="FooterTextBlock" Grid.Column="0" Style="{DynamicResource HintTextStyle}" VerticalAlignment="Center" TextWrapping="Wrap"
+                       Text="Conflicts are never resolved for you: a conflict is applied only if you pick an asset in its row."/>
+            <Button x:Name="BindButton" Grid.Column="1" Content="Bind ticked" Width="150" Height="28" Margin="0,0,8,0" IsEnabled="False" Click="BindButton_Click"/>
+            <Button Grid.Column="2" Content="Close" Width="100" Height="28" IsCancel="True" Click="CloseButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>

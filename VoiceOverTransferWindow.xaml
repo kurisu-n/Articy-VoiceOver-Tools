@@ -1,0 +1,145 @@
+<Window x:Class="Kurisu.VoiceOverTools.VoiceOverTransferWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Export / Import Voice-Overs"
+        Height="760" Width="980"
+        WindowStartupLocation="CenterOwner"
+        Style="{DynamicResource ArticyWindowStyle}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Kurisu.VoiceOverTools;component/Resources/ArticyTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Object -->
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Object:" Style="{DynamicResource HeaderTextStyle}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock x:Name="ObjectTextBlock" Grid.Column="1" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            <Button Grid.Column="2" Content="Pick..." Width="90" Height="26" Click="PickButton_Click"/>
+        </Grid>
+
+        <!-- Mode -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <ToggleButton x:Name="ExportModeToggle" Content="Export" Style="{DynamicResource CategoryToggleStyle}" Margin="0,0,6,0" Click="ModeToggle_Click"/>
+            <ToggleButton x:Name="ImportModeToggle" Content="Import" Style="{DynamicResource CategoryToggleStyle}" Click="ModeToggle_Click"/>
+            <TextBlock x:Name="ModeHintTextBlock" Style="{DynamicResource HintTextStyle}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Options -->
+        <Grid Grid.Row="2" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Folder" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <Grid Grid.Row="0" Grid.Column="1" Margin="0,2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="FolderTextBox" Grid.Column="0" Height="24" VerticalContentAlignment="Center"/>
+                <Button Grid.Column="1" Content="Browse..." Width="90" Height="24" Margin="6,0,0,0" Click="BrowseButton_Click"/>
+            </Grid>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Languages" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <WrapPanel x:Name="LanguagesPanel" Grid.Row="1" Grid.Column="1" Margin="0,4"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Main language" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,2">
+                <ComboBox x:Name="MainLanguageComboBox" Width="160"/>
+                <TextBlock x:Name="MainLanguageHint" Style="{DynamicResource HintTextStyle}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
+
+            <TextBlock x:Name="SplitLabel" Grid.Row="3" Grid.Column="0" Text="Folders" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <StackPanel x:Name="SplitPanel" Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,2">
+                <TextBlock Text="Hierarchy levels" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <ComboBox x:Name="LevelsComboBox" Width="60"/>
+                <TextBlock Text="Speaker folder" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="16,0,6,0"/>
+                <ComboBox x:Name="SpeakerComboBox" Width="170"/>
+                <CheckBox x:Name="FolderPerLanguageCheckBox" Content="One top folder per language" VerticalAlignment="Center" Margin="16,0,0,0"/>
+            </StackPanel>
+
+            <TextBlock x:Name="NamesLabel" Grid.Row="4" Grid.Column="0" Text="Files" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+            <StackPanel x:Name="NamesPanel" Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,2">
+                <CheckBox x:Name="StripTagCheckBox" Content="Strip the (XXXX) tag" VerticalAlignment="Center"/>
+                <TextBlock Text="Existing files" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="16,0,6,0"/>
+                <ComboBox x:Name="ExistingComboBox" Width="120"/>
+            </StackPanel>
+
+            <Button Grid.Row="5" Grid.Column="1" x:Name="PreviewButton" Content="Preview" Width="120" Height="28" HorizontalAlignment="Left" Margin="0,8,0,0" Click="PreviewButton_Click"/>
+        </Grid>
+
+        <TextBlock x:Name="SummaryTextBlock" Grid.Row="3" Style="{DynamicResource HeaderTextStyle}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+        <Border Grid.Row="4" BorderBrush="{DynamicResource BorderDarkBrush}" BorderThickness="1" Background="{DynamicResource DarkBgBrush}">
+            <ListBox x:Name="RowsListBox"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     HorizontalContentAlignment="Stretch"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="4,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0" VerticalAlignment="Top" Margin="0,2,8,0"
+                                      IsChecked="{Binding Selected, Mode=TwoWay}" IsEnabled="{Binding Selectable}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding StatusText}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Top"/>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap"/>
+                                <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding Choice, Mode=TwoWay}"
+                                          Visibility="{Binding HasChoices, Converter={StaticResource BoolToVisibility}}"
+                                          HorizontalAlignment="Left" MinWidth="320" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <Grid Grid.Row="5" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="FooterTextBlock" Grid.Column="0" Style="{DynamicResource HintTextStyle}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+            <Button x:Name="RunButton" Grid.Column="1" Width="170" Height="28" Margin="0,0,8,0" IsEnabled="False" Click="RunButton_Click"/>
+            <Button Grid.Column="2" Content="Close" Width="100" Height="28" IsCancel="True" Click="CloseButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>

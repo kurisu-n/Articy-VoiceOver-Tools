@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Articy-free tests for the Export / Import Voice-Overs decisions. Compiles the plugin's own
+       VoiceOverTransferCore.cs (linked, not copied) and runs as a console program:
+       dotnet run -c Release -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\VoiceOverTransferCore.cs" Link="VoiceOverTransferCore.cs" />
+    <Compile Include="*.cs" />
+  </ItemGroup>
+
+</Project>
