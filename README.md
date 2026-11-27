@@ -23,7 +23,7 @@ The other commands keep a project tidy along the way: an audit of missing and br
 
 ## Installation
 
-Download the latest `.mdk` from [`releases/`](./releases) and install it through articy:draft X's **Package Manager**, the usual way a plugin is installed (articy's [Packaging a plugin](https://www.articy.com/adxdevkit/html/packaging_a_plugin.htm) page covers it). The commands appear in the ribbon under **Firecrest Roost: Voice-Over Tools**, and the ones that act on a selection appear under the same name in the right-click menu.
+Download the latest `.mdk` from the [Releases page](https://github.com/kurisu-n/Articy-VoiceOver-Tools/releases/latest), where the two Unity scripts are attached as files of their own (every earlier build is in [`releases/`](./releases)), and install it through articy:draft X's **Package Manager**, the usual way a plugin is installed (articy's [Packaging a plugin](https://www.articy.com/adxdevkit/html/packaging_a_plugin.htm) page covers it). The commands appear in the ribbon under **Firecrest Roost: Voice-Over Tools**, and the ones that act on a selection appear under the same name in the right-click menu.
 
 Each command is reached from one or both menus:
 
