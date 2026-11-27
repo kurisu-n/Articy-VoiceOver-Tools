@@ -18,12 +18,13 @@
 
     <!-- Keep in step with PluginManifest.xml: articy reuses an already-loaded assembly with the same
          identity, so an update installed without a restart can keep running the old code. -->
-    <Version>1.1.7</Version>
+    <Version>1.1.8</Version>
   </PropertyGroup>
 
-  <!-- The articy-free tests live in Tests/ as their own project; keep them out of the plugin. -->
+  <!-- Tests/ is its own project and Unity/ holds Unity scripts for the Dialogue System side: keep both out of the plugin. -->
   <ItemGroup>
     <Compile Remove="Tests/**" />
+    <Compile Remove="Unity/**" />
     <None Remove="Tests/**" />
     <Page Remove="Tests/**" />
   </ItemGroup>

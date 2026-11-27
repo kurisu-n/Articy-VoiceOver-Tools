@@ -42,6 +42,20 @@ namespace Kurisu.VoiceOverTools
 		// line therefore names the studio and the plugin (Chris, 2026-11-23).
 		private const string MenuPrefix = "Firecrest Roost: Voice-Over Tools\\";
 
+		/// <summary>
+		/// Whether maintainer commands such as the self-test are shown. On when the environment variable
+		/// FIRECREST_ARTICY_DEV is "1" or "true" for the user running articy (read when the menu opens,
+		/// so a change needs articy restarted to be seen). Shared with the Template Transfer plugin.
+		/// </summary>
+		internal static bool DevCommandsEnabled
+		{
+			get
+			{
+				var value = Environment.GetEnvironmentVariable("FIRECREST_ARTICY_DEV");
+				return value == "1" || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
+			}
+		}
+
 		public override List<MacroCommandDescriptor> GetMenuEntries(List<ObjectProxy> aSelectedObjects, ContextMenuContext aContext )
 		{
 			var result = new List<MacroCommandDescriptor>();
@@ -124,6 +138,7 @@ namespace Kurisu.VoiceOverTools
             };
 
             // Replaces one voice-over and restores it, so it asks for confirmation and is meant for copies.
+            // A maintainer command: shown only when DevCommandsEnabled.
             var selfTestVoiceOverTransfer = new MacroCommandDescriptor
             {
                 CaptionLid   = MenuPrefix + "Self-Test Export / Import (copies only)",
@@ -148,7 +163,8 @@ namespace Kurisu.VoiceOverTools
                     //result.Add(selectMasterFlowObject);
                     result.Add(exportImportVoiceOvers);
                     result.Add(matchLanguageVoiceOvers);
-                    result.Add(selfTestVoiceOverTransfer);
+                    if (DevCommandsEnabled)
+                        result.Add(selfTestVoiceOverTransfer);
                     result.Add(renameAllVoiceOvers);
                     result.Add(cleanUpOrphanedAudioAssets);
                     result.Add(auditVoiceOvers);
